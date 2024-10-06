@@ -15,9 +15,21 @@ Including another URLconf
 """
 from django.contrib import admin
 from django.urls import path, include
+from accounts.views import login_view, logout_view, dashboard_view, get_csrf_token
+from django.contrib.auth import views as auth_views
 
 urlpatterns = [
     path('admin/', admin.site.urls),
     path('', include('example_app.urls')),
-    path('api/survei/',include('survei.urls'))
+    path('accounts/', include('accounts.urls')),
+    path('api/login/', login_view, name="login"),
+    path('api/logout/', logout_view, name="logout"),
+    path('api/dashboard/', dashboard_view, name="dashboard"),
+    path('csrf/', get_csrf_token, name='get_csrf_token'),
+    path('password_reset/', auth_views.PasswordResetView.as_view(), name='password_reset'),
+    path('password_reset/done/', auth_views.PasswordResetDoneView.as_view(), name='password_reset_done'),
+    path('reset/<uidb64>/<token>/', auth_views.PasswordResetConfirmView.as_view(), name='password_reset_confirm'),
+    path('reset/done/', auth_views.PasswordResetCompleteView.as_view(), name='password_reset_complete'),
+    path('api/survei/',include('survei.urls')),
+
 ]
