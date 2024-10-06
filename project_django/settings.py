@@ -28,7 +28,7 @@ SECRET_KEY = 'django-insecure-3@5wx%(^*zl68l(o$^m-3%cvjv0g&mom1ra=oj5f048_al57s7
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = ["*"]
+ALLOWED_HOSTS = ['localhost', '127.0.0.1']
 
 # Application definition
 
@@ -40,6 +40,9 @@ INSTALLED_APPS = [
     'django.contrib.messages',
     'django.contrib.staticfiles',
     'example_app',
+    'accounts',
+    'rest_framework',
+    'corsheaders',
 ]
 
 MIDDLEWARE = [
@@ -51,7 +54,20 @@ MIDDLEWARE = [
     'django.contrib.auth.middleware.AuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
+    'corsheaders.middleware.CorsMiddleware',
+    
 ]
+
+CORS_ALLOW_CREDENTIALS = True
+
+CORS_ALLOWED_ORIGINS = [
+    "http://localhost:3000",  # Next.js frontend
+]
+
+CSRF_COOKIE_SECURE = False  # For development (in production, this should be True with HTTPS)
+CSRF_COOKIE_HTTPONLY = False
+CSRF_USE_SESSIONS = False
+
 
 ROOT_URLCONF = 'project_django.urls'
 
@@ -107,6 +123,17 @@ AUTH_PASSWORD_VALIDATORS = [
     },
 ]
 
+# Authentication Backends
+AUTHENTICATION_BACKENDS = [
+    'django.contrib.auth.backends.ModelBackend',
+]
+
+# EMAIL_BACKEND = 'django.core.mail.backends.filebased.EmailBackend'
+# EMAIL_FILE_PATH = r'C:\Users\honeyn\app-messages'  # Or any directory you prefer
+
+
+
+CSRF_TRUSTED_ORIGINS = ['http://localhost:3000']
 
 # Internationalization
 # https://docs.djangoproject.com/en/4.1/topics/i18n/
