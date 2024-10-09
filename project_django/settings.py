@@ -42,6 +42,7 @@ INSTALLED_APPS = [
     'example_app',
     'accounts',
     'rest_framework',
+    'rest_framework.authtoken',
     'corsheaders',
     'klien',
 ]
@@ -99,7 +100,7 @@ DATABASES = {
         'ENGINE': 'django.db.backends.postgresql_psycopg2',
         'NAME': 'siap', 
         'USER': 'postgres',
-        'PASSWORD': 'secret99',
+        'PASSWORD': 'haninA29',
         'HOST': 'localhost', 
         'PORT': '5432',
     }
@@ -169,3 +170,18 @@ STATICFILES_STORAGE = 'whitenoise.storage.CompressedManifestStaticFilesStorage'
 # https://docs.djangoproject.com/en/4.1/ref/settings/#default-auto-field
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
+
+# REST_FRAMEWORK = {
+#     'DEFAULT_AUTHENTICATION_CLASSES': [
+#         'rest_framework.authentication.TokenAuthentication',  # Use TokenAuthentication
+#     ],
+#     'DEFAULT_PERMISSION_CLASSES': [
+#         'rest_framework.permissions.IsAuthenticated',
+#     ],
+# }
+
+REST_FRAMEWORK = {
+    'DEFAULT_AUTHENTICATION_CLASSES': [
+        'rest_framework.authentication.TokenAuthentication',  # Use TokenAuthentication
+    ],
+}
