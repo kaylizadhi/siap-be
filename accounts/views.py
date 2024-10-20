@@ -63,7 +63,7 @@ def profil_view(request):
             'last_name': user.last_name,
             'email': user.email,
             'username': user.username,
-            'role': user.role  # Include the role if you want to display it
+            'role': user.role  
         })
     
     if request.method == 'PATCH':
