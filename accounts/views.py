@@ -11,11 +11,12 @@ from rest_framework import status
 from django.http import JsonResponse
 from django.contrib.auth.decorators import login_required
 from django.views.decorators.csrf import ensure_csrf_cookie
-from django.contrib.auth.models import User
+from django.contrib.auth import get_user_model
 from django.views.decorators.csrf import csrf_exempt
 from rest_framework.authtoken.models import Token
-from .models import Profile
+# from .models import Profile
 
+User = get_user_model()
 
 
 @api_view(['GET'])
@@ -24,17 +25,6 @@ def get_data(request):
         "message": "Hello from Django!"
     }
     return Response(data)
-
-@api_view(['POST'])
-def login_view(request):
-    username = request.data.get('username')
-    password = request.data.get('password')
-    user = authenticate(username=username, password=password)
-
-    if user is not None:
-        return Response({"message": "Login successful"}, status=status.HTTP_200_OK)
-    else:
-        return Response({"error": "Invalid credentials"}, status=status.HTTP_400_BAD_REQUEST)
 
 @api_view(['POST'])
 def login_view(request):
@@ -64,7 +54,8 @@ def dashboard_view(request):
 @api_view(['GET', 'PATCH'])
 @permission_classes([IsAuthenticated])
 def profil_view(request):
-    user = request.user
+    user = request.user  # The authenticated user
+
     if request.method == 'GET':
         # Return user profile data
         return Response({
@@ -72,11 +63,14 @@ def profil_view(request):
             'last_name': user.last_name,
             'email': user.email,
             'username': user.username,
+            'role': user.role  # Include the role if you want to display it
         })
     
     if request.method == 'PATCH':
         # Update user profile data
         data = request.data
+        
+        # Update only the fields provided in the request
         if 'first_name' in data:
             user.first_name = data['first_name']
         if 'last_name' in data:
@@ -86,7 +80,9 @@ def profil_view(request):
         if 'username' in data:
             user.username = data['username']
         
-        user.save()  # Save the updated user information
+        # Save the updated user information
+        user.save()
+        
         return Response({
             'message': 'Profile updated successfully'
         }, status=status.HTTP_200_OK)
@@ -94,16 +90,15 @@ def profil_view(request):
 @api_view(['POST'])
 def get_security_question(request):
     username = request.data.get('username')
-    
+
     # Try to fetch the user by username
     try:
         user = User.objects.get(username=username)
     except User.DoesNotExist:
         return Response({'error': 'User not found'}, status=status.HTTP_404_NOT_FOUND)
     
-    # If user is found, return the security question
-    print({user.profile.security_question})
-    return Response({'security_question': user.profile.security_question}, status=status.HTTP_200_OK)
+    # If user is found, return the security question from the User model
+    return Response({'security_question': user.security_question}, status=status.HTTP_200_OK)
 
 @api_view(['POST'])
 def verify_security_answer(request):
@@ -111,18 +106,37 @@ def verify_security_answer(request):
     security_answer = request.data.get('security_answer')
     new_password = request.data.get('new_password')
 
-    # Fetch user and profile
-    user = get_object_or_404(User, username=username)
-    profile = get_object_or_404(Profile, user=user)
+    # Fetch user based on the provided username
+    try:
+        user = User.objects.get(username=username)
+    except User.DoesNotExist:
+        return Response({'error': 'User not found'}, status=status.HTTP_404_NOT_FOUND)
 
-    # Check if the security answer matches the one in the profile
-    if profile.security_answer.lower() == security_answer.lower():
+    # Check if the provided security answer matches (case-insensitive)
+    if user.security_answer.lower() == security_answer.lower():
+        # If the answer is correct, set the new password
         user.set_password(new_password)
         user.save()
         return Response({'message': 'Password reset successful'}, status=status.HTTP_200_OK)
     else:
         return Response({'error': 'Incorrect security answer'}, status=status.HTTP_400_BAD_REQUEST)
-    
+
+@api_view(['PATCH'])
+@permission_classes([IsAuthenticated])
+def change_password(request):
+    user = request.user
+    old_password = request.data.get('old_password')
+    new_password = request.data.get('new_password')
+
+    # Check if the old password is correct
+    if not user.check_password(old_password):
+        return Response({'error': 'Old password is incorrect'}, status=status.HTTP_400_BAD_REQUEST)
+
+    # Set the new password
+    user.set_password(new_password)
+    user.save()
+
+    return Response({'message': 'Password changed successfully'}, status=status.HTTP_200_OK)
 
 # View to return CSRF token
 @ensure_csrf_cookie

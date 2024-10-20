@@ -1,6 +1,6 @@
 from django.core.management.base import BaseCommand
-from django.contrib.auth.models import User
-from accounts.models import Profile  # Assuming Profile is in accounts.models
+from accounts.models import User
+from accounts.models import Profile  
 
 class Command(BaseCommand):
     help = 'Create profiles for users who do not have one.'
