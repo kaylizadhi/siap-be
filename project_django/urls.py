@@ -18,8 +18,10 @@ from django.urls import path, include
 from accounts.views import login_view, logout_view, dashboard_view, get_csrf_token, profil_view, get_security_question, verify_security_answer, change_password
 from django.contrib.auth import views as auth_views
 
+
 urlpatterns = [
     path('admin/', admin.site.urls),
+    path('buatAkun/', include('buatAkun.urls')),
     path('', include('example_app.urls')),
     path('accounts/', include('accounts.urls')),
     path('api/', include('accounts.urls')),
