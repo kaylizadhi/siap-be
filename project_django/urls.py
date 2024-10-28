@@ -15,16 +15,28 @@ Including another URLconf
 """
 from django.contrib import admin
 from django.urls import path, include
+from accounts.views import login_view, logout_view, dashboard_view, get_csrf_token, profil_view, get_security_question, verify_security_answer, change_password
+from django.contrib.auth import views as auth_views
 
 
 urlpatterns = [
     path('admin/', admin.site.urls),
     path('buatAkun/', include('buatAkun.urls')),
-    # path('klien/', klien_list, name='klien_list'),
-    # path('klien/create/', klien_create, name='klien_create'),
-    # path('klien/<int:id>/', klien_detail, name='klien_detail'),
-    # path('klien/update/<int:id>/', klien_update, name='klien_update'),
-    # path('klien/delete/<int:id>/', klien_delete, name='klien_delete'),
-    # path('delete_akun/<int:user_id>/', delete_akun, name='delete_akun'),
-    # path('', include('daftarAkun.urls')),
+    path('', include('example_app.urls')),
+    path('accounts/', include('accounts.urls')),
+    path('api/', include('accounts.urls')),
+    path('api/get-security-question/', get_security_question, name='get_security_question'),
+    path('api/verify-security-answer/', verify_security_answer, name='verify_security_answer'),
+    path('api/change-password/', change_password, name='change_password'),
+    path('api/profil/', profil_view, name="profil"),
+    path('api/login/', login_view, name="login"),
+    path('api/logout/', logout_view, name="logout"),
+    path('api/dashboard/', dashboard_view, name="dashboard"),
+    path('csrf/', get_csrf_token, name='get_csrf_token'),
+    path('password_reset/', auth_views.PasswordResetView.as_view(), name='password_reset'),
+    path('password_reset/done/', auth_views.PasswordResetDoneView.as_view(), name='password_reset_done'),
+    path('reset/<uidb64>/<token>/', auth_views.PasswordResetConfirmView.as_view(), name='password_reset_confirm'),
+    path('reset/done/', auth_views.PasswordResetCompleteView.as_view(), name='password_reset_complete'),
+    path('klien/', include('klien.urls')),
+    path('dokumen_pendukung/', include('dokumen_pendukung.urls')),
 ]

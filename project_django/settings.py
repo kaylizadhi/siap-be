@@ -28,7 +28,7 @@ SECRET_KEY = 'django-insecure-3@5wx%(^*zl68l(o$^m-3%cvjv0g&mom1ra=oj5f048_al57s7
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = ["*"]
+ALLOWED_HOSTS = ['localhost', '127.0.0.1']
 
 # Application definition
 
@@ -42,9 +42,14 @@ INSTALLED_APPS = [
     'corsheaders',
     'rest_framework',
     'example_app',
+    'accounts',
+    'rest_framework',
+    'rest_framework.authtoken',
+    'corsheaders',
     'klien',
     'buatAkun',
     'daftarAkun',
+    'dokumen_pendukung',
 ]
 
 MIDDLEWARE = [
@@ -58,6 +63,17 @@ MIDDLEWARE = [
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
     'corsheaders.middleware.CorsMiddleware',
 ]
+
+CORS_ALLOW_CREDENTIALS = True
+
+CORS_ALLOWED_ORIGINS = [
+    "http://localhost:3000",  # Next.js frontend
+]
+
+CSRF_COOKIE_SECURE = False  # For development (in production, this should be True with HTTPS)
+CSRF_COOKIE_HTTPONLY = False
+CSRF_USE_SESSIONS = False
+
 
 ROOT_URLCONF = 'project_django.urls'
 
@@ -94,6 +110,9 @@ DATABASES = {
     }
 }
 
+AUTH_USER_MODEL = 'accounts.User'
+
+
 if PRODUCTION:
     DATABASES['default'] = dj_database_url.config(
         conn_max_age=600, ssl_require=True
@@ -117,6 +136,17 @@ AUTH_PASSWORD_VALIDATORS = [
     },
 ]
 
+# Authentication Backends
+AUTHENTICATION_BACKENDS = [
+    'django.contrib.auth.backends.ModelBackend',
+]
+
+# EMAIL_BACKEND = 'django.core.mail.backends.filebased.EmailBackend'
+# EMAIL_FILE_PATH = r'C:\Users\honeyn\app-messages'  # Or any directory you prefer
+
+
+
+CSRF_TRUSTED_ORIGINS = ['http://localhost:3000']
 
 # Internationalization
 # https://docs.djangoproject.com/en/4.1/topics/i18n/
@@ -152,3 +182,10 @@ DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 CORS_ALLOWED_ORIGINS = [
     "http://localhost:3000",  # Frontend URL
 ]
+
+REST_FRAMEWORK = {
+    'DEFAULT_AUTHENTICATION_CLASSES': [
+        'rest_framework.authentication.TokenAuthentication',  # Use TokenAuthentication
+    ],
+}
+
