@@ -14,6 +14,7 @@ from django.views.decorators.csrf import ensure_csrf_cookie
 from django.contrib.auth import get_user_model
 from django.views.decorators.csrf import csrf_exempt
 from rest_framework.authtoken.models import Token
+from .decorators import admin_required, administrator_required
 # from .models import Profile
 
 User = get_user_model()
@@ -50,6 +51,7 @@ def logout_view(request):
 def dashboard_view(request):
     # Only logged in users can access this view
     return JsonResponse({"message": "This is the dashboard"})
+
 
 @api_view(['GET', 'PATCH'])
 @permission_classes([IsAuthenticated])
@@ -142,3 +144,59 @@ def change_password(request):
 @ensure_csrf_cookie
 def get_csrf_token(request):
     return JsonResponse({'csrfToken': request.META.get('CSRF_COOKIE')})
+
+@api_view(['GET'])
+@login_required
+def check_role_eksekutif(request):
+    user = request.user
+    print(user.role)
+    if user.role == 'Eksekutif':  
+        return JsonResponse({'role': user.role})
+    return JsonResponse({'error': 'Unauthorized'}, status=403)
+
+@api_view(['GET'])
+@login_required
+def check_role_administrasi(request):
+    user = request.user
+    print(user.role)
+    if user.role == 'Administrasi':  
+        return JsonResponse({'role': user.role})
+    return JsonResponse({'error': 'Unauthorized'}, status=403)
+
+@api_view(['GET'])
+@login_required
+def check_role_logistik(request):
+    user = request.user
+    print(user.role)
+    if user.role == 'Logistik':  
+        return JsonResponse({'role': user.role})
+    return JsonResponse({'error': 'Unauthorized'}, status=403)
+
+@api_view(['GET'])
+@login_required
+def check_role_pengendalimutu(request):
+    user = request.user
+    print(user.role)
+    if user.role == 'Pengendali Mutu':  
+        return JsonResponse({'role': user.role})
+    return JsonResponse({'error': 'Unauthorized'}, status=403)
+
+@api_view(['GET'])
+@login_required
+def check_role_admin(request):
+    user = request.user
+    print(user.role)
+    if user.role == 'Admin':  
+        return JsonResponse({'role': user.role})
+    return JsonResponse({'error': 'Unauthorized'}, status=403)
+
+@api_view(['GET'])
+@login_required
+def check_role_proposal(request):
+    user = request.user
+    print(user.role)
+    if user.role == 'Administrasi':  
+        return JsonResponse({'role': user.role})
+    elif user.role == 'Eksekutif':
+        return JsonResponse({'role': user.role})
+    return JsonResponse({'error': 'Unauthorized'}, status=403)
