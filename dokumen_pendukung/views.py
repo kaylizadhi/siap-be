@@ -2,7 +2,6 @@ from django.shortcuts import render
 
 import os
 import tempfile
-import pythoncom
 from django.http import FileResponse, HttpResponse
 from openpyxl import load_workbook
 from openpyxl.drawing.image import Image
