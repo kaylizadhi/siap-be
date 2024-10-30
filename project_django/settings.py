@@ -39,12 +39,18 @@ INSTALLED_APPS = [
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
+    'corsheaders',
+    'rest_framework',
     'example_app',
     'accounts',
     'rest_framework',
     'rest_framework.authtoken',
     'corsheaders',
     'klien',
+    'tracker_survei'
+    'buatAkun',
+    'daftarAkun',
+    'dokumen_pendukung',
 ]
 
 MIDDLEWARE = [
@@ -57,7 +63,6 @@ MIDDLEWARE = [
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
     'corsheaders.middleware.CorsMiddleware',
-    
 ]
 
 CORS_ALLOW_CREDENTIALS = True
@@ -100,11 +105,14 @@ DATABASES = {
         'ENGINE': 'django.db.backends.postgresql_psycopg2',
         'NAME': 'siap', 
         'USER': 'postgres',
-        'PASSWORD': 'haninA29',
+        'PASSWORD': 'secret99',
         'HOST': 'localhost', 
         'PORT': '5432',
     }
 }
+
+AUTH_USER_MODEL = 'accounts.User'
+
 
 if PRODUCTION:
     DATABASES['default'] = dj_database_url.config(
@@ -171,17 +179,14 @@ STATICFILES_STORAGE = 'whitenoise.storage.CompressedManifestStaticFilesStorage'
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
-# REST_FRAMEWORK = {
-#     'DEFAULT_AUTHENTICATION_CLASSES': [
-#         'rest_framework.authentication.TokenAuthentication',  # Use TokenAuthentication
-#     ],
-#     'DEFAULT_PERMISSION_CLASSES': [
-#         'rest_framework.permissions.IsAuthenticated',
-#     ],
-# }
+# Allow requests from the Next.js frontend
+CORS_ALLOWED_ORIGINS = [
+    "http://localhost:3000",  # Frontend URL
+]
 
 REST_FRAMEWORK = {
     'DEFAULT_AUTHENTICATION_CLASSES': [
         'rest_framework.authentication.TokenAuthentication',  # Use TokenAuthentication
     ],
 }
+
