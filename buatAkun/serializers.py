@@ -4,4 +4,4 @@ from .models import BuatAkun
 class BuatAkunSerializer(serializers.ModelSerializer):
     class Meta:
         model = BuatAkun
-        fields = ('name', 'email', 'username','role','password')
+        fields = ('username','name', 'email','role','password')

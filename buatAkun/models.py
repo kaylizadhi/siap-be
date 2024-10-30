@@ -3,9 +3,11 @@ from django.db import models
 
 class BuatAkun(models.Model):
     ROLE_CHOICES = [
-        ('Admin', 'Admin'),
+        ('Eksekutif', 'Eksekutif'),
+        ('Admin Sistem', 'Admin Sistem'),
+        ('Administrasi', 'Administrasi'), 
+        ('Logistik', 'Logistik'),
         ('Pengendali Mutu', 'Pengendali Mutu'),
-        ('Manager', 'Manager'),  # Add other roles here as needed
     ]
     user_id = models.UUIDField(default=uuid.uuid4, editable=False, unique=True)  # UUID sebagai user ID unik
     email = models.EmailField(unique=True)

@@ -43,10 +43,7 @@ INSTALLED_APPS = [
     'rest_framework',
     'example_app',
     'accounts',
-    'rest_framework',
     'rest_framework.authtoken',
-    'corsheaders',
-    'klien',
     'buatAkun',
     'daftarAkun',
     'dokumen_pendukung',
@@ -167,9 +164,9 @@ STATIC_URL = '/static/'
 
 STATIC_ROOT = BASE_DIR / 'staticfiles'
 
-STATICFILES_DIRS = [
-    BASE_DIR / 'static',
-]
+# STATICFILES_DIRS = [
+#     BASE_DIR / 'static',
+# ]
 
 STATICFILES_STORAGE = 'whitenoise.storage.CompressedManifestStaticFilesStorage'
 
