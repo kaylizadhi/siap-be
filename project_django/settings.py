@@ -47,6 +47,7 @@ INSTALLED_APPS = [
     'rest_framework.authtoken',
     'corsheaders',
     'klien',
+    'tracker_survei'
     'buatAkun',
     'daftarAkun',
     'dokumen_pendukung',

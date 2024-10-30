@@ -17,6 +17,7 @@ from django.contrib import admin
 from django.urls import path, include
 from accounts.views import login_view, logout_view, dashboard_view, get_csrf_token, profil_view, get_security_question, verify_security_answer, change_password
 from django.contrib.auth import views as auth_views
+from tracker_survei.views import SurveyStatusView
 
 
 urlpatterns = [
@@ -38,5 +39,6 @@ urlpatterns = [
     path('reset/<uidb64>/<token>/', auth_views.PasswordResetConfirmView.as_view(), name='password_reset_confirm'),
     path('reset/done/', auth_views.PasswordResetCompleteView.as_view(), name='password_reset_complete'),
     path('klien/', include('klien.urls')),
+    path('survey-status/', include('tracker_survei.urls')),
     path('dokumen_pendukung/', include('dokumen_pendukung.urls')),
 ]
