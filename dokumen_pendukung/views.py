@@ -2,7 +2,6 @@ from django.shortcuts import render
 
 import os
 import tempfile
-import pythoncom
 from django.http import FileResponse, HttpResponse
 from openpyxl import load_workbook
 from openpyxl.drawing.image import Image
@@ -17,6 +16,10 @@ from django.contrib.auth import get_user_model
 from django.http import JsonResponse
 from django.contrib.auth.decorators import login_required
 from pptx import Presentation
+import sys
+
+if sys.platform == 'win32':
+    import pythoncom
 
 
 User = get_user_model()

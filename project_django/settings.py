@@ -43,14 +43,14 @@ INSTALLED_APPS = [
     'rest_framework',
     'example_app',
     'accounts',
-    'rest_framework',
     'rest_framework.authtoken',
-    'corsheaders',
     'klien',
-    'tracker_survei'
+    'tracker_survei',
     'buatAkun',
     'daftarAkun',
     'dokumen_pendukung',
+    'survei',
+    'souvenir',
 ]
 
 MIDDLEWARE = [
@@ -105,7 +105,7 @@ DATABASES = {
         'ENGINE': 'django.db.backends.postgresql_psycopg2',
         'NAME': 'siap', 
         'USER': 'postgres',
-        'PASSWORD': 'secret99',
+        'PASSWORD': 'mirrorball',
         'HOST': 'localhost', 
         'PORT': '5432',
     }

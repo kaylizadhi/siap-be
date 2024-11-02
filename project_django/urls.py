@@ -42,4 +42,5 @@ urlpatterns = [
     path('klien/', include('klien.urls')),
     path('survey-status/', include('tracker_survei.urls')),
     path('dokumen_pendukung/', include('dokumen_pendukung.urls')),
+    path('api/souvenir/',include('souvenir.urls')),
 ]
