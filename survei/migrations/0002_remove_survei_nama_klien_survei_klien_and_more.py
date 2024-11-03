@@ -21,8 +21,13 @@ class Migration(migrations.Migration):
         migrations.AddField(
             model_name='survei',
             name='klien',
-            field=models.ForeignKey(default=survei.models.get_default_klien, on_delete=django.db.models.deletion.PROTECT, related_name='survei_set', to='klien.dataklien'),
+            field=models.ForeignKey(
+                on_delete=django.db.models.deletion.PROTECT, 
+                related_name='survei_set', 
+                to='klien.dataklien'
+            ),
         ),
+
         migrations.AlterField(
             model_name='survei',
             name='waktu_berakhir_survei',
