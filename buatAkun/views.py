@@ -6,6 +6,15 @@ from django.views.decorators.csrf import csrf_exempt
 from rest_framework import status
 from .models import BuatAkun
 import json
+from rest_framework.authtoken.models import Token
+from django.contrib.auth.decorators import login_required
+
+@login_required #untuk verify is it really admin
+def check_role_adminsistem(request):
+    if request.user.role == 'Admin Sistem':  
+        return JsonResponse({'role': 'Admin Sistem'})
+    else:
+        return JsonResponse({'error': 'User is not an Admin Sistem'}, status=403)
 
 @csrf_exempt
 def buat_akun(request):

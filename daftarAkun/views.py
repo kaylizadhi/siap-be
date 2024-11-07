@@ -1,111 +1,66 @@
 from django.http import JsonResponse
 from django.shortcuts import get_object_or_404
 from .models import DaftarAkun
-# from .forms import DataKlienForm
+from .forms import FormBuatAkun  
 from django.views.decorators.csrf import csrf_exempt
-from django.db.models import Q 
+from django.db.models import Q
 import json
 
-# List all clients (GET)
+# List all accounts (GET)
 @csrf_exempt
-def klien_list(request):
+def akun_list(request):
     if request.method == 'GET':
         accounts = DaftarAkun.objects.filter(is_deleted=False).values('username', 'nama', 'email', 'role')
         accounts_list = list(accounts)
         return JsonResponse(accounts_list, safe=False)
 
-# Create a new client (POST)
+# Get an existing account (GET)
 @csrf_exempt
-def account_create(request):
-    if request.method == 'POST':
-        try:
-            # Load JSON data from request body
-            data = json.loads(request.body)
-        except json.JSONDecodeError:
-            return JsonResponse({"error": "Invalid JSON"}, status=400)
-
-        form = DataKlienForm(data) #ganti nama form nya
-        if form.is_valid():
-            akun = form.save()
-            return JsonResponse({
-                'username': akun.username,
-                'nama': akun.nama,
-                'email': akun.email,
-                'role': akun.role
-            }, status=201)
-        return JsonResponse(form.errors, status=400)
-
-# Detail view of a client (GET)
-@csrf_exempt
-def account_detail(request, id):
+def get_existing_account(request):
     if request.method == 'GET':
-        klien = get_object_or_404(DataKlien, id=id, is_deleted=False)
-        return JsonResponse({
-            'username': akun.username,
-            'nama': akun.nama,
-            'email': akun.email,
-            'role': akun.role
-        })
-
-# Update client details (PUT)
-@csrf_exempt
-def account_update(request, id):
-    akun = get_object_or_404(DataKlien, id=id, is_deleted=False)
-    
-    if request.method == 'PUT' or request.method == 'POST':  # You can use either PUT or POST
-        try:
-            # Load JSON data from request body
-            data = json.loads(request.body)
-        except json.JSONDecodeError:
-            return JsonResponse({"error": "Invalid JSON"}, status=400)
+        # Fetch all accounts that were created in a different page
+        # Modify the filter criteria as needed if you want specific accounts
+        accounts = DaftarAkun.objects.filter(is_deleted=False).values('username', 'nama', 'email', 'role')
+        accounts_list = list(accounts)
         
-        form = DataKlienForm(data, instance=klien) #bikin form dan ganti nama form nya 
-        
-        if form.is_valid():
-            klien = form.save()
-            return JsonResponse({
-                'id': klien.id,
-                'nama_klien': klien.nama_klien,
-                'nama_perusahaan': klien.nama_perusahaan,
-                'daerah': klien.daerah
-            }, status=200)
-        else:
-            return JsonResponse(form.errors, status=400)
-    
-    # Return error if method is not allowed
-    return JsonResponse({"error": "Method not allowed"}, status=405)
+        # Return the existing accounts in JSON format
+        return JsonResponse(accounts_list, safe=False)
+    else:
+        return JsonResponse({"error": "Invalid request method"}, status=405)
 
-# Soft delete a client (DELETE)
+# Soft delete an account (DELETE)
 @csrf_exempt
-def klien_delete(request, id):
-    klien = get_object_or_404(DataKlien, id=id)
+def akun_delete(request, id):
+    akun = get_object_or_404(DaftarAkun, id=id)
     if request.method == 'DELETE':
-        klien.is_deleted = True  # Mark as deleted
-        klien.save()
-        return JsonResponse({'message': 'Client deleted successfully'}, status=204)
+        akun.is_deleted = True 
+        akun.save()
+        return JsonResponse({'message': 'Account deleted successfully'}, status=204)
+    else:
+        return JsonResponse({'error': 'Invalid request method'}, status=405)
 
+# Search accounts
 @csrf_exempt
-def search_klien(request):
+def search_akun(request):
     query = request.GET.get('q', '')
     results = []
 
     if query:
-        results = DataKlien.objects.filter(
-            Q(nama_klien__icontains=query) |
-            Q(nama_perusahaan__icontains=query) |
-            Q(daerah__icontains=query),
-            is_deleted=False  # Only search for non-deleted clients
+        results = DaftarAkun.objects.filter(
+            Q(username__icontains=query) |
+            Q(nama__icontains=query) |
+            Q(role__icontains=query),
+            is_deleted=False
         )
 
-
-    # Create response data in JSON format
     data = [
         {
-            'nama_klien': klien.nama_klien,
-            'nama_perusahaan': klien.nama_perusahaan,
-            'daerah': klien.daerah,
+            'username': akun.username,
+            'nama': akun.nama,
+            'email': akun.email,
+            'role': akun.role,
         }
-        for klien in results
+        for akun in results
     ]
 
     return JsonResponse(data, safe=False)
