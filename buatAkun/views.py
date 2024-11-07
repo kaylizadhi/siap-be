@@ -1,5 +1,5 @@
 from django.contrib.auth.hashers import make_password
-from django.contrib.auth.models import User
+from django.contrib.auth import get_user_model
 from django.contrib.auth.forms import UserCreationForm
 from django.http import JsonResponse
 from django.views.decorators.csrf import csrf_exempt
@@ -8,6 +8,8 @@ from .models import BuatAkun
 import json
 from rest_framework.authtoken.models import Token
 from django.contrib.auth.decorators import login_required
+
+User = get_user_model()
 
 @login_required #untuk verify is it really admin
 def check_role_adminsistem(request):
@@ -27,7 +29,7 @@ def buat_akun(request):
         data = json.loads(request.body)
         
         # Check if required fields are present
-        required_fields = ["username", "name", "email", "role", "password"]
+        required_fields = ["username", "first_name", "last_name", "email", "role", "password"]
         for field in required_fields:
             if field not in data:
                 return JsonResponse({"error": f"{field} is required."}, status=status.HTTP_400_BAD_REQUEST)
@@ -36,7 +38,8 @@ def buat_akun(request):
         try:
             user = BuatAkun(
                 username=data["username"],
-                name=data["name"],
+                first_name=data["first_name"],
+                last_name_name=data["last_name"],
                 email=data["email"],
                 role=data["role"],
                 password=make_password(data["password"])  # Hash the password
