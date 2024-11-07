@@ -316,13 +316,12 @@ def generate_kwitansi_dp(request):
         'date': data.get('date', datetime.now().strftime('%Y-%m-%d')),
     }
 
-
     # Generate unique kwitansi code
     current_date = datetime.now()
     month_roman = month_to_roman(current_date.month)
     year = current_date.year
     kwitansi_number = get_next_kwitansi_number()
-    kwitansi_code = f"Inv No: {kwitansi_number}/IDR-KWT/{month_roman}/{year}"
+    kwitansi_code = f"{kwitansi_number}/IDR-KWT/{month_roman}/{year}"
     kwitansi_id = f"{kwitansi_number}/IDR-KWT/{month_roman}/{year}"
 
     # Save the data to the kwitansi_dp table
@@ -336,62 +335,32 @@ def generate_kwitansi_dp(request):
         date=user_data['date']
     )
 
-    # # Load the Excel template
-    # template_path = os.path.join(settings.BASE_DIR, 'dokumen_pendukung/templates/templateKwitansiDP.xlsx')
+    # load excel template for kwitansi dp
+    template_path = os.path.join(settings.BASE_DIR, 'dokumen_pendukung/templates/templateKwitansi.xlsx')
 
-    # workbook = load_workbook(template_path)
-    # sheet = workbook.active
-    # formatted_date = datetime.strptime(user_data['date'], "%Y-%m-%d").strftime("%d %B %Y")
-    # date_message = f"Date: {formatted_date}"
-    # sheet.merge_cells('B31:E31')
-    # sheet.merge_cells('C16:F16')
-    # sheet.merge_cells('B27:E27')
-    # sheet.merge_cells('B28:E28')
-    # sheet.merge_cells('G14:H14')
+    workbook = load_workbook(template_path)
+    sheet = workbook.active
+    sheet.merge_cells('E14:G14')
+    sheet.merge_cells('E16:G16')
+    sheet.merge_cells(start_row=17, start_column=5, end_row=18, end_column=7)
+    sheet.merge_cells('E19:G19')
 
-    # # Fill out the required cells in the Excel file with user data
-    # sheet['A9'] = invoice_code
-    # sheet['C16'] = user_data['client_name']           
-    # sheet['B27'] = user_data['survey_name']           
-    # sheet['B31'] = respondent_message      
-    # sheet['C18'] = user_data['address']               
-    # sheet['G27'] = user_data['amount']                
-    # sheet['C35'] = user_data['nominal_tertulis']
-    # sheet['C35'].font = Font(name="Times New Roman", bold=True, underline="single")
-    # sheet['F27'] = paid_percentage_message      
-    # sheet['B28'] = user_data['additional_info']       
-    # sheet['G14'] = date_message                 
+    # fill cells with input from user_data
+    sheet['A11'] = kwitansi_code
+    sheet['E14'] = user_data['pembayar']
+    sheet['E16'] = f"# {user_data['nominal_tertulis']} #"
+    sheet['E17'] = user_data['tujuan_pembayaran']
+    sheet['E19'] = user_data['additional_info']
+    sheet['B27'] = user_data['amount']
+    sheet['L27'] = user_data['date']
 
-    # # Path to the image you want to add
-    # header_image_path = os.path.join(settings.BASE_DIR, 'dokumen_pendukung/images/header.png')  
-    # header_img = Image(header_image_path)
-    # header_img.width, header_img.height = 846.6, 136  
+    # to do: load and insert header
 
-    # # Path to the image you want to add
-    # invoice_image_path = os.path.join(settings.BASE_DIR, 'dokumen_pendukung/images/invoice.png') 
-    # invoice_img = Image(invoice_image_path)
-    # invoice_img.width, invoice_img.height = 275.9, 75.59
+    # to do: generate file name
 
-    # # Path to the image you want to add
-    # ttd_image_path = os.path.join(settings.BASE_DIR, 'dokumen_pendukung/images/ttd.png')
-    # ttd_img = Image(ttd_image_path)
-    # ttd_img.width, ttd_img.height = 314.83, 173.48
+    # to do: response as excel file
 
-    # # Add image to the specified cell location
-    # sheet.add_image(header_img, 'A1') 
-    # sheet.add_image(invoice_img, 'G8')
-    # sheet.add_image(ttd_img, 'G37')
-
-    # # Generate a filename
-    # filename = f"{user_data['survey_name']}_invoiceDP_{invoice_code}.xlsx"
-
-    # # Prepare the response as an Excel file
-    # response = HttpResponse(content_type='application/vnd.openxmlformats-officedocument.spreadsheetml.sheet')
-    # response['Content-Disposition'] = f'attachment; filename={filename}'
-
-    # # Save workbook to the response
-    # workbook.save(response)
-    # return response
+    # to do: save workbook to response
 
     return HttpResponse(status=405)  # Method not allowed for non-POST requests
 
@@ -430,61 +399,6 @@ def generate_kwitansi_final(request):
         date=user_data['date']
     )
 
-    # # Load the Excel template
-    # template_path = os.path.join(settings.BASE_DIR, 'dokumen_pendukung/templates/templateKwitansi.xlsx')
-
-    # workbook = load_workbook(template_path)
-    # sheet = workbook.active
-    # formatted_date = datetime.strptime(user_data['date'], "%Y-%m-%d").strftime("%d %B %Y")
-    # date_message = f"Date: {formatted_date}"
-    # sheet.merge_cells('B31:E31')
-    # sheet.merge_cells('C16:F16')
-    # sheet.merge_cells('B27:E27')
-    # sheet.merge_cells('B28:E28')
-    # sheet.merge_cells('G14:H14')
-
-    # # Fill out the required cells in the Excel file with user data
-    # sheet['A9'] = invoice_code
-    # sheet['C16'] = user_data['client_name']           
-    # sheet['B27'] = user_data['survey_name']           
-    # sheet['B31'] = respondent_message      
-    # sheet['C18'] = user_data['address']               
-    # sheet['G27'] = user_data['amount']                
-    # sheet['C35'] = user_data['nominal_tertulis']
-    # sheet['C35'].font = Font(name="Times New Roman", bold=True, underline="single")
-    # sheet['F27'] = paid_percentage_message      
-    # sheet['B28'] = user_data['additional_info']       
-    # sheet['G14'] = date_message                 
-
-    # # Path to the image you want to add
-    # header_image_path = os.path.join(settings.BASE_DIR, 'dokumen_pendukung/images/header.png')  
-    # header_img = Image(header_image_path)
-    # header_img.width, header_img.height = 846.6, 136  
-
-    # # Path to the image you want to add
-    # invoice_image_path = os.path.join(settings.BASE_DIR, 'dokumen_pendukung/images/invoice.png') 
-    # invoice_img = Image(invoice_image_path)
-    # invoice_img.width, invoice_img.height = 275.9, 75.59
-
-    # # Path to the image you want to add
-    # ttd_image_path = os.path.join(settings.BASE_DIR, 'dokumen_pendukung/images/ttd.png')
-    # ttd_img = Image(ttd_image_path)
-    # ttd_img.width, ttd_img.height = 314.83, 173.48
-
-    # # Add image to the specified cell location
-    # sheet.add_image(header_img, 'A1') 
-    # sheet.add_image(invoice_img, 'G8')
-    # sheet.add_image(ttd_img, 'G37')
-
-    # # Generate a filename
-    # filename = f"{user_data['survey_name']}_invoiceDP_{invoice_code}.xlsx"
-
-    # # Prepare the response as an Excel file
-    # response = HttpResponse(content_type='application/vnd.openxmlformats-officedocument.spreadsheetml.sheet')
-    # response['Content-Disposition'] = f'attachment; filename={filename}'
-
-    # # Save workbook to the response
-    # workbook.save(response)
-    # return response
+    # to do
 
     return HttpResponse(status=405)  # Method not allowed for non-POST requests
