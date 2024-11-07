@@ -1,16 +1,19 @@
 from django.http import JsonResponse
+from django.contrib.auth import get_user_model
+from accounts.models import User
 from django.shortcuts import get_object_or_404
 from .models import DaftarAkun
-from .forms import FormBuatAkun  
 from django.views.decorators.csrf import csrf_exempt
 from django.db.models import Q
 import json
+
+User = get_user_model()
 
 # List all accounts (GET)
 @csrf_exempt
 def akun_list(request):
     if request.method == 'GET':
-        accounts = DaftarAkun.objects.filter(is_deleted=False).values('username', 'nama', 'email', 'role')
+        accounts = User.objects.filter(is_deleted=False).values('username', 'first_name', 'last_name', 'email', 'role')
         accounts_list = list(accounts)
         return JsonResponse(accounts_list, safe=False)
 
@@ -20,7 +23,7 @@ def get_existing_account(request):
     if request.method == 'GET':
         # Fetch all accounts that were created in a different page
         # Modify the filter criteria as needed if you want specific accounts
-        accounts = DaftarAkun.objects.filter(is_deleted=False).values('username', 'nama', 'email', 'role')
+        accounts = User.objects.filter(is_deleted=False).values('username', 'first_name', 'last_name', 'email', 'role')
         accounts_list = list(accounts)
         
         # Return the existing accounts in JSON format
@@ -31,7 +34,7 @@ def get_existing_account(request):
 # Soft delete an account (DELETE)
 @csrf_exempt
 def akun_delete(request, id):
-    akun = get_object_or_404(DaftarAkun, id=id)
+    akun = get_object_or_404(User, id=id)
     if request.method == 'DELETE':
         akun.is_deleted = True 
         akun.save()
@@ -46,9 +49,10 @@ def search_akun(request):
     results = []
 
     if query:
-        results = DaftarAkun.objects.filter(
+        results = User.objects.filter(
             Q(username__icontains=query) |
-            Q(nama__icontains=query) |
+            Q(first_name__icontains=query) |
+            Q(last_name__icontains=query) |
             Q(role__icontains=query),
             is_deleted=False
         )
@@ -56,7 +60,8 @@ def search_akun(request):
     data = [
         {
             'username': akun.username,
-            'nama': akun.nama,
+            'first_name': akun.first_name,
+            'last_name': akun.last_name,
             'email': akun.email,
             'role': akun.role,
         }
