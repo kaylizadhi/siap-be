@@ -29,6 +29,7 @@ class User(AbstractBaseUser):
     date_joined = models.DateTimeField(default=timezone.now)
     security_question = models.CharField(max_length=255)
     security_answer = models.CharField(max_length=255)
+    is_deleted = models.BooleanField(default=False)
 
     USERNAME_FIELD = 'username'
     REQUIRED_FIELDS = ['email', 'first_name', 'last_name']

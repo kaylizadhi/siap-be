@@ -1,5 +1,6 @@
 from django.contrib.auth.hashers import make_password
 from django.contrib.auth import get_user_model
+from accounts.models import User
 from django.contrib.auth.forms import UserCreationForm
 from django.http import JsonResponse
 from django.views.decorators.csrf import csrf_exempt
@@ -36,13 +37,13 @@ def buat_akun(request):
 
         # Create the BuatAkun instance
         try:
-            user = BuatAkun(
+            user = User(
                 username=data["username"],
                 first_name=data["first_name"],
-                last_name_name=data["last_name"],
+                last_name = data["last_name"],
                 email=data["email"],
                 role=data["role"],
-                password=make_password(data["password"])  # Hash the password
+                password=data["password"]  # Hash the password
             )
             user.save()
             return JsonResponse({"message": "Akun telah berhasil dibuat!"}, status=status.HTTP_201_CREATED)
