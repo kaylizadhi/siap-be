@@ -30,7 +30,7 @@ def buat_akun(request):
         data = json.loads(request.body)
         
         # Check if required fields are present
-        required_fields = ["username", "first_name", "last_name", "email", "role", "password"]
+        required_fields = ["username", "first_name", "last_name", "email", "role", "password", "security_question", "security_answer"]
         for field in required_fields:
             if field not in data:
                 return JsonResponse({"error": f"{field} is required."}, status=status.HTTP_400_BAD_REQUEST)
@@ -43,6 +43,8 @@ def buat_akun(request):
                 last_name = data["last_name"],
                 email=data["email"],
                 role=data["role"],
+                security_question=data["security_question"],
+                security_answer=data["security_answer"],
                 password=data["password"]  # Hash the password
             )
             user.save()
