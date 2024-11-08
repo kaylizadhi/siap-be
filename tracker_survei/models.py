@@ -24,6 +24,10 @@ class TrackerSurvei(models.Model):
     pembayaran_dp = models.CharField(max_length=20, choices=STATUS_CHOICES, default='NOT_STARTED')
     pembuatan_kwitansi_dp = models.CharField(max_length=20, choices=STATUS_CHOICES, default='NOT_STARTED')
 
+    # Logistik
+    terima_request_souvenir = models.CharField(max_length=20, choices=STATUS_CHOICES, default='NOT_STARTED')
+    ambil_souvenir = models.CharField(max_length=20, choices=STATUS_CHOICES, default='NOT_STARTED')
+
     # Pengendali Mutu
     terima_info_survei = models.CharField(max_length=20, choices=STATUS_CHOICES, default='NOT_STARTED')
     lakukan_survei = models.CharField(max_length=20, choices=STATUS_CHOICES, default='NOT_STARTED')
@@ -34,10 +38,6 @@ class TrackerSurvei(models.Model):
     buat_invoice_final = models.CharField(max_length=20, choices=STATUS_CHOICES, default='NOT_STARTED')
     pembayaran_lunas = models.CharField(max_length=20, choices=STATUS_CHOICES, default='NOT_STARTED')
     pembuatan_kwitansi_final = models.CharField(max_length=20, choices=STATUS_CHOICES, default='NOT_STARTED')
-
-    # Logistik
-    terima_request_souvenir = models.CharField(max_length=20, choices=STATUS_CHOICES, default='NOT_STARTED')
-    ambil_souvenir = models.CharField(max_length=20, choices=STATUS_CHOICES, default='NOT_STARTED')
 
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
@@ -53,6 +53,13 @@ class TrackerSurvei(models.Model):
             self.pembuatan_kwitansi_dp
         ]
         return all(status == 'FINISHED' for status in admin_awal_fields)
+
+    def is_logistik_finished(self):
+        logistik_fields = [
+            self.terima_request_souvenir,
+            self.ambil_souvenir
+        ]
+        return all(status == 'FINISHED' for status in logistik_fields)
 
     def is_pengendali_mutu_finished(self):
         mutu_fields = [
@@ -71,13 +78,6 @@ class TrackerSurvei(models.Model):
         ]
         return all(status == 'FINISHED' for status in admin_akhir_fields)
 
-    def is_logistik_finished(self):
-        logistik_fields = [
-            self.terima_request_souvenir,
-            self.ambil_souvenir
-        ]
-        return all(status == 'FINISHED' for status in logistik_fields)
-
     def clean(self):
         # Validate Administrasi Awal sequence
         if self.buat_invoice_dp != 'NOT_STARTED' and self.buat_kontrak != 'FINISHED':
@@ -87,10 +87,19 @@ class TrackerSurvei(models.Model):
         if self.pembuatan_kwitansi_dp != 'NOT_STARTED' and self.pembayaran_dp != 'FINISHED':
             raise ValidationError('Pembayaran DP harus selesai sebelum Pembuatan Kwitansi DP dapat dibuat')
 
-        # Validate Pengendali Mutu sequence (after Administrasi Awal)
+        # Validate Logistik sequence (after Administrasi Awal)
+        logistik_fields = {'terima_request_souvenir', 'ambil_souvenir'}
+        if any(getattr(self, field) != 'NOT_STARTED' for field in logistik_fields) and not self.is_administrasi_awal_finished():
+            raise ValidationError('Semua tugas Administrasi Awal harus selesai sebelum memulai Logistik')
+
+        # Validate Logistik internal sequence
+        if self.ambil_souvenir != 'NOT_STARTED' and self.terima_request_souvenir != 'FINISHED':
+            raise ValidationError('Menerima request souvenir harus selesai sebelum Mengambil souvenir dapat dimulai')
+
+        # Validate Pengendali Mutu sequence (after Logistik)
         mutu_fields = {'terima_info_survei', 'lakukan_survei', 'pantau_responden', 'pantau_data_cleaning'}
-        if any(getattr(self, field) != 'NOT_STARTED' for field in mutu_fields) and not self.is_administrasi_awal_finished():
-            raise ValidationError('Semua tugas Administrasi Awal harus selesai sebelum memulai Pengendali Mutu')
+        if any(getattr(self, field) != 'NOT_STARTED' for field in mutu_fields) and not self.is_logistik_finished():
+            raise ValidationError('Semua tugas Logistik harus selesai sebelum memulai Pengendali Mutu')
 
         # Validate Pengendali Mutu internal sequence
         if self.lakukan_survei != 'NOT_STARTED' and self.terima_info_survei != 'FINISHED':
@@ -111,21 +120,10 @@ class TrackerSurvei(models.Model):
         if self.pembuatan_kwitansi_final != 'NOT_STARTED' and self.pembayaran_lunas != 'FINISHED':
             raise ValidationError('Pembayaran Lunas harus selesai sebelum Pembuatan Kwitansi Final dapat dibuat')
 
-        # Validate Logistik sequence (after Administrasi Akhir)
-        logistik_fields = {'terima_request_souvenir', 'ambil_souvenir'}
-        if any(getattr(self, field) != 'NOT_STARTED' for field in logistik_fields) and not self.is_administrasi_akhir_finished():
-            raise ValidationError('Semua tugas Administrasi Akhir harus selesai sebelum memulai Logistik')
-
-        # Validate Logistik internal sequence
-        if self.ambil_souvenir != 'NOT_STARTED' and self.terima_request_souvenir != 'FINISHED':
-            raise ValidationError('Menerima request souvenir harus selesai sebelum Mengambil souvenir dapat dimulai')
-
-
     def save(self, *args, **kwargs):
         self.full_clean()
         super().save(*args, **kwargs)
 
-    # Create tracker automatically when survey is created
     @receiver(post_save, sender=Survei)
     def create_tracker(sender, instance, created, **kwargs):
         if created:
