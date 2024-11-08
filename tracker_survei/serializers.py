@@ -8,12 +8,17 @@ class TrackerSurveiSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = TrackerSurvei
-        fields = ['id', 'nama_survei', 'nama_klien', 'nama_klien', 'status']
-    
+        fields = ['id', 'nama_survei', 'nama_klien', 'status']
+
     def get_status(self, obj):
         status_fields = [
-            'buat_kontrak', 'buat_invoice', 'pembayaran_lunas', 'pembuatan_kwitansi',
-            'terima_request_souvenir', 'ambil_souvenir',
-            'terima_info_survei', 'lakukan_survei', 'pantau_responden', 'pantau_data_cleaning'
+            # Administrasi Awal
+            'buat_kontrak', 'buat_invoice_dp', 'pembayaran_dp', 'pembuatan_kwitansi_dp',
+            # Pengendali Mutu
+            'terima_info_survei', 'lakukan_survei', 'pantau_responden', 'pantau_data_cleaning',
+            # Administrasi Akhir
+            'buat_invoice_final', 'pembayaran_lunas', 'pembuatan_kwitansi_final',
+            # Logistik
+            'terima_request_souvenir', 'ambil_souvenir'
         ]
         return [{field: getattr(obj, field)} for field in status_fields]

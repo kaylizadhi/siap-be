@@ -23,16 +23,17 @@ def validate_role_fields(user_role, data):
     """Validate that the user can only modify fields within their role."""
     role_field_mapping = {
         'Administrasi': {
-            'buat_kontrak', 'buat_invoice', 
-            'pembayaran_lunas', 'pembuatan_kwitansi'
-        },
-        'Logistik': {
-            'terima_request_souvenir', 
-            'ambil_souvenir'
+            'buat_kontrak', 'buat_invoice_dp', 
+            'pembayaran_dp', 'pembuatan_kwitansi_dp',
+            'buat_invoice_final', 'pembayaran_lunas', 
+            'pembuatan_kwitansi_final'
         },
         'Pengendali Mutu': {
-            'terima_info_survei', 'lakukan_survei',
+            'terima_info_survei', 'lakukan_survei', 
             'pantau_responden', 'pantau_data_cleaning'
+        },
+        'Logistik': {
+            'terima_request_souvenir', 'ambil_souvenir'
         }
     }
 
@@ -51,28 +52,33 @@ def safe_update_tracker(tracker, user_role, update_data):
     try:
         validate_role_fields(user_role, update_data)
         
+        # Save the current state of the tracker fields to allow rollback in case of error
         current_state = {
             field: getattr(tracker, field) 
             for field in update_data.keys()
         }
         
+        # Attempt to update tracker with new data
         for field, value in update_data.items():
             setattr(tracker, field, value)
-            
+        
+        # Perform model-level validation
         tracker.full_clean()
         tracker.save()
         
-        return None
+        return None  # Indicate no error
         
     except ValidationError as e:
+        # Rollback to original state if validation fails
         for field, value in current_state.items():
             setattr(tracker, field, value)
         
         if hasattr(e, 'message_dict'):
-            return e.message_dict
+            return e.message_dict  # Return validation error details
         return {'error': str(e)}
         
     except Exception as e:
+        # Rollback to original state in case of any unexpected error
         for field, value in current_state.items():
             setattr(tracker, field, value)
             
@@ -123,6 +129,12 @@ def get_tracker_detail(request, survei_id):
 @permission_classes([IsAuthenticated])
 def update_administrasi_status(request, survei_id):
     """Update tracker status for Administrasi role."""
+    return handle_tracker_update(request, survei_id, ['Administrasi'])
+
+@api_view(['PATCH'])
+@permission_classes([IsAuthenticated])
+def update_administrasi_akhir_status(request, survei_id):
+    """Update tracker status for Administrasi Akhir role."""
     return handle_tracker_update(request, survei_id, ['Administrasi'])
 
 @api_view(['PATCH'])
