@@ -6,7 +6,6 @@ from .serializers import SouvenirGet, SouvenirPost
 from rest_framework import status
 from rest_framework.pagination import PageNumberPagination
 from rest_framework.views import APIView
-from rest_framework.response import Response
 
 class SouvenirPagination(PageNumberPagination):
     page_size = 10  # Jumlah item per halaman
@@ -16,7 +15,8 @@ class SouvenirPagination(PageNumberPagination):
 @api_view(['GET'])
 def get_list_souvenir(request):
     paginator = SouvenirPagination()
-    souvenir = Souvenir.objects.all()
+    # Hanya ambil item yang belum dihapus
+    souvenir = Souvenir.objects.filter(is_deleted=False)
     result_page = paginator.paginate_queryset(souvenir, request)
     serializer = SouvenirGet(result_page, many=True)
     return paginator.get_paginated_response(serializer.data)
@@ -24,7 +24,8 @@ def get_list_souvenir(request):
 @api_view(['GET'])
 def get_souvenir_detail(request, id):
     try:
-        souvenir = Souvenir.objects.get(id=str(id))
+        # Hanya ambil item yang belum dihapus
+        souvenir = Souvenir.objects.get(id=str(id), is_deleted=False)
     except Souvenir.DoesNotExist:
         return Response(status=status.HTTP_404_NOT_FOUND)
 
@@ -43,7 +44,8 @@ def add_souvenir(request):
 @api_view(['PATCH'])
 def update_souvenir(request, id):
     try:
-        souvenir = Souvenir.objects.get(id=str(id))
+        # Hanya ambil item yang belum dihapus
+        souvenir = Souvenir.objects.get(id=str(id), is_deleted=False)
     except Souvenir.DoesNotExist:
         return Response(status=status.HTTP_404_NOT_FOUND)
 
@@ -57,9 +59,12 @@ def update_souvenir(request, id):
 @api_view(['DELETE'])
 def delete_souvenir(request, id):
     try:
-        souvenir = Souvenir.objects.filter(id=str(id))
+        # Dapatkan souvenir yang belum dihapus
+        souvenir = Souvenir.objects.get(id=str(id), is_deleted=False)
     except Souvenir.DoesNotExist:
         return Response(status=status.HTTP_404_NOT_FOUND)
 
-    souvenir.delete()
+    # Soft delete dengan mengubah `is_deleted` menjadi True
+    souvenir.is_deleted = True
+    souvenir.save()
     return Response(status=status.HTTP_204_NO_CONTENT)
