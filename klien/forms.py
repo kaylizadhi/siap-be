@@ -4,4 +4,4 @@ from .models import DataKlien
 class DataKlienForm(forms.ModelForm):
     class Meta:
         model = DataKlien
-        fields = ['nama_klien', 'nama_perusahaan', 'daerah', 'harga_survei']
+        fields = ['nama_klien', 'nama_perusahaan', 'daerah']

@@ -1,6 +1,5 @@
 from django.apps import AppConfig
 
-
-class KlienConfig(AppConfig):
+class BuatAkunConfig(AppConfig):
     default_auto_field = 'django.db.models.BigAutoField'
-    name = 'klien'
+    name = 'buatAkun'
