@@ -1,11 +1,23 @@
 from django.contrib.auth.hashers import make_password
-from django.contrib.auth.models import User
+from django.contrib.auth import get_user_model
+from accounts.models import User
 from django.contrib.auth.forms import UserCreationForm
 from django.http import JsonResponse
 from django.views.decorators.csrf import csrf_exempt
 from rest_framework import status
 from .models import BuatAkun
 import json
+from rest_framework.authtoken.models import Token
+from django.contrib.auth.decorators import login_required
+
+User = get_user_model()
+
+@login_required #untuk verify is it really admin
+def check_role_adminsistem(request):
+    if request.user.role == 'Admin Sistem':  
+        return JsonResponse({'role': 'Admin Sistem'})
+    else:
+        return JsonResponse({'error': 'User is not an Admin Sistem'}, status=403)
 
 @csrf_exempt
 def buat_akun(request):
@@ -18,20 +30,24 @@ def buat_akun(request):
         data = json.loads(request.body)
         
         # Check if required fields are present
-        required_fields = ["username", "name", "email", "role", "password"]
+        required_fields = ["username", "first_name", "last_name", "email", "role", "password", "security_question", "security_answer"]
         for field in required_fields:
             if field not in data:
                 return JsonResponse({"error": f"{field} is required."}, status=status.HTTP_400_BAD_REQUEST)
 
         # Create the BuatAkun instance
         try:
-            user = BuatAkun(
+            user = User(
                 username=data["username"],
-                name=data["name"],
+                first_name=data["first_name"],
+                last_name = data["last_name"],
                 email=data["email"],
                 role=data["role"],
-                password=make_password(data["password"])  # Hash the password
+                security_question=data["security_question"],
+                security_answer=data["security_answer"],
+                password=data["password"]  # Hash the password
             )
+            user.set_password(data["password"])
             user.save()
             return JsonResponse({"message": "Akun telah berhasil dibuat!"}, status=status.HTTP_201_CREATED)
         except Exception as e:
