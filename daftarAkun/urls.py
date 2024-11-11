@@ -2,5 +2,7 @@ from django.urls import path
 from . import views
 
 urlpatterns = [
-    path('daftarAkun/', views.list_accounts, name='daftar-akun'),
+    path('api/daftarAkun/', views.akun_list, name='akun_list'),
+    path('<int:account_id>/delete/', views.akun_delete, name='akun_delete'),
+    path('api/searchAkun/', views.search_akun, name='search_akun'),
 ]
