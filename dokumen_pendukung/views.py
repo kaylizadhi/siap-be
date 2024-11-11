@@ -2,7 +2,7 @@ from django.shortcuts import render
 
 import os
 import tempfile
-from django.http import FileResponse, HttpResponse
+from django.http import FileResponse, HttpResponse, HttpResponseNotFound
 from openpyxl import load_workbook
 from openpyxl.drawing.image import Image
 from datetime import datetime
@@ -354,15 +354,22 @@ def generate_kwitansi_dp(request):
     sheet['B27'] = user_data['amount']
     sheet['L27'] = user_data['date']
 
-    # to do: load and insert header
+    # load and insert header
+    header_image_path = os.path.join(settings.BASE_DIR, 'dokumen_pendukung/images/header.png')  
+    header_img = Image(header_image_path)
+    header_img.width, header_img.height = 846.6, 136 
+    sheet.add_image(header_img, 'A1')  
 
-    # to do: generate file name
+    # generate file name
+    filename = f"{user_data['survey_name']}_KwitansiDP_{kwitansi_code}.xlsx"
 
-    # to do: response as excel file
+    # response as excel file
+    response = HttpResponse(content_type='application/vnd.openxmlformats-officedocument.spreadsheetml.sheet')
+    response['Content-Disposition'] = f'attachment; filename={filename}'
 
-    # to do: save workbook to response
-
-    return HttpResponse(status=405)  # Method not allowed for non-POST requests
+    # save  workbook to the response
+    workbook.save(response)
+    return response
 
 @api_view(['POST'])
 def generate_kwitansi_final(request):
@@ -379,7 +386,6 @@ def generate_kwitansi_final(request):
         'date': data.get('date', datetime.now().strftime('%Y-%m-%d')),
     }
 
-
     # Generate unique kwitansi code
     current_date = datetime.now()
     month_roman = month_to_roman(current_date.month)
@@ -388,7 +394,7 @@ def generate_kwitansi_final(request):
     kwitansi_code = f"Inv No: {kwitansi_number}/IDR-KWT/{month_roman}/{year}"
     kwitansi_id = f"{kwitansi_number}/IDR-KWT/{month_roman}/{year}"
 
-    # Save the data to the kwitansi_dp table
+    # Save the data to the kwitansi final table
     KwitansiFinal.objects.create(
         id=kwitansi_id,
         pembayar=user_data['pembayar'],
@@ -399,6 +405,38 @@ def generate_kwitansi_final(request):
         date=user_data['date']
     )
 
-    # to do
+    # load excel template for kwitansi final
+    template_path = os.path.join(settings.BASE_DIR, 'dokumen_pendukung/templates/templateKwitansi.xlsx')
 
-    return HttpResponse(status=405)  # Method not allowed for non-POST requests
+    workbook = load_workbook(template_path)
+    sheet = workbook.active
+    sheet.merge_cells('E14:G14')
+    sheet.merge_cells('E16:G16')
+    sheet.merge_cells(start_row=17, start_column=5, end_row=18, end_column=7)
+    sheet.merge_cells('E19:G19')
+
+    # fill cells with input from user_data
+    sheet['A11'] = kwitansi_code
+    sheet['E14'] = user_data['pembayar']
+    sheet['E16'] = f"# {user_data['nominal_tertulis']} #"
+    sheet['E17'] = user_data['tujuan_pembayaran']
+    sheet['E19'] = user_data['additional_info']
+    sheet['B27'] = user_data['amount']
+    sheet['L27'] = user_data['date']
+
+    # load and insert header
+    header_image_path = os.path.join(settings.BASE_DIR, 'dokumen_pendukung/images/header.png')  
+    header_img = Image(header_image_path)
+    header_img.width, header_img.height = 846.6, 136  
+    sheet.add_image(header_img, 'A1') 
+
+    # generate file name
+    filename = f"{user_data['survey_name']}_KwitansiFinal_{kwitansi_code}.xlsx"
+
+    # response as excel file
+    response = HttpResponse(content_type='application/vnd.openxmlformats-officedocument.spreadsheetml.sheet')
+    response['Content-Disposition'] = f'attachment; filename={filename}'
+
+    # save  workbook to the response
+    workbook.save(response)
+    return response
