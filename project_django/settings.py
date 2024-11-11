@@ -45,10 +45,12 @@ INSTALLED_APPS = [
     'accounts',
     'rest_framework.authtoken',
     'klien',
+    'survei',
     'tracker_survei',
     'buatAkun',
     'daftarAkun',
     'dokumen_pendukung',
+    'souvenir',
 ]
 
 MIDDLEWARE = [
