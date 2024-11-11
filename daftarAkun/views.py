@@ -13,7 +13,7 @@ User = get_user_model()
 @csrf_exempt
 def akun_list(request):
     if request.method == 'GET':
-        accounts = User.objects.values('username', 'first_name', 'last_name', 'email', 'role')
+        accounts = User.objects.values('id', 'username', 'first_name', 'last_name', 'email', 'role')
         accounts_list = list(accounts)
         return JsonResponse(accounts_list, safe=False)
 
@@ -36,9 +36,8 @@ def get_existing_account(request):
 def akun_delete(request, id):
     akun = get_object_or_404(User, id=id)
     if request.method == 'DELETE':
-        akun = User.objects.get(id=account_id)
+        akun = User.objects.get(id=id)
         akun.delete()  # Hard delete
-        akun.save()
         return JsonResponse({'message': 'Account deleted successfully'}, status=204)
     else:
         return JsonResponse({'error': 'Invalid request method'}, status=405)
