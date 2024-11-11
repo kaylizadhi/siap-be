@@ -5,6 +5,7 @@ import tempfile
 from django.http import FileResponse, HttpResponse, HttpResponseNotFound
 from openpyxl import load_workbook
 from openpyxl.drawing.image import Image
+from openpyxl.styles import Font
 from datetime import datetime
 from django.views.decorators.csrf import csrf_exempt
 from django.conf import settings
@@ -324,6 +325,8 @@ def generate_kwitansi_dp(request):
     kwitansi_code = f"{kwitansi_number}/IDR-KWT/{month_roman}/{year}"
     kwitansi_id = f"{kwitansi_number}/IDR-KWT/{month_roman}/{year}"
 
+    formatted_date = datetime.strptime(user_data['date'], '%Y-%m-%d').strftime("Jakarta, %d %B %Y")
+
     # Save the data to the kwitansi_dp table
     KwitansiDP.objects.create(
         id=kwitansi_id,
@@ -340,19 +343,55 @@ def generate_kwitansi_dp(request):
 
     workbook = load_workbook(template_path)
     sheet = workbook.active
+
+    times_new_roman_font = Font(name="Times New Roman")
+    bold_times_new_roman_font = Font(name="Times New Roman", bold=True)
+
+    for row in sheet.iter_rows():
+        for cell in row:
+            cell.font = times_new_roman_font
+
+    for cell in sheet['A']:
+        cell.font = bold_times_new_roman_font
+
+    # sheet.merge_cells('A10:L10')
+    sheet.merge_cells('A11:L11')
+    # sheet.merge_cells('A14:C14')
+    # sheet.merge_cells('A16:C16')
+    # sheet.merge_cells('A17:C17')
+    # sheet.merge_cells('A19:C19')
     sheet.merge_cells('E14:G14')
     sheet.merge_cells('E16:G16')
+    sheet.merge_cells(start_row=17, start_column=1, end_row=18, end_column=3)
     sheet.merge_cells(start_row=17, start_column=5, end_row=18, end_column=7)
     sheet.merge_cells('E19:G19')
+    sheet.merge_cells('B27:E27')
+    sheet.merge_cells('K27:L27')
 
     # fill cells with input from user_data
+    # sheet['A10'] = "Kuitansi Pembayaran"
     sheet['A11'] = kwitansi_code
+
+    # sheet['A14'] = "Telah Terima Dari"
+    # sheet['D14'] = ":"
     sheet['E14'] = user_data['pembayar']
+
+    # sheet['A16'] = "Terbilang"
+    # sheet['D16'] = ":"    
     sheet['E16'] = f"# {user_data['nominal_tertulis']} #"
+
+    # sheet['A17'] = "Untuk Pembayaran"
+    # sheet['D17'] = ":"
     sheet['E17'] = user_data['tujuan_pembayaran']
+
+    # sheet['A19'] = "Keterangan"
+    # sheet['D19'] = ":"
     sheet['E19'] = user_data['additional_info']
+
+    # sheet['A27'] = "Rp"
     sheet['B27'] = user_data['amount']
-    sheet['L27'] = user_data['date']
+
+    sheet['K27'] = user_data['date']
 
     # load and insert header
     header_image_path = os.path.join(settings.BASE_DIR, 'dokumen_pendukung/images/header.png')  
@@ -361,8 +400,7 @@ def generate_kwitansi_dp(request):
     sheet.add_image(header_img, 'A1')  
 
     # generate file name
-    filename = f"{user_data['survey_name']}_KwitansiDP_{kwitansi_code}.xlsx"
-
+    filename = f"KwitansiDP_{kwitansi_code}.xlsx"
     # response as excel file
     response = HttpResponse(content_type='application/vnd.openxmlformats-officedocument.spreadsheetml.sheet')
     response['Content-Disposition'] = f'attachment; filename={filename}'
@@ -393,6 +431,8 @@ def generate_kwitansi_final(request):
     kwitansi_number = get_next_kwitansi_number()
     kwitansi_code = f"Inv No: {kwitansi_number}/IDR-KWT/{month_roman}/{year}"
     kwitansi_id = f"{kwitansi_number}/IDR-KWT/{month_roman}/{year}"
+
+    formatted_date = datetime.strptime(user_data['date'], '%Y-%m-%d').strftime("Jakarta, %d %B %Y")
 
     # Save the data to the kwitansi final table
     KwitansiFinal.objects.create(
