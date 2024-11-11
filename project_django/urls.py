@@ -19,9 +19,12 @@ from accounts.views import login_view, logout_view, dashboard_view, get_csrf_tok
 from django.contrib.auth import views as auth_views
 from django.conf import settings
 from django.conf.urls.static import static
+from tracker_survei.views import SurveyStatusView
+
 
 urlpatterns = [
     path('admin/', admin.site.urls),
+    path('buatAkun/', include('buatAkun.urls')),
     path('', include('example_app.urls')),
     path('accounts/', include('accounts.urls')),
     path('api/', include('accounts.urls')),
@@ -38,5 +41,6 @@ urlpatterns = [
     path('reset/<uidb64>/<token>/', auth_views.PasswordResetConfirmView.as_view(), name='password_reset_confirm'),
     path('reset/done/', auth_views.PasswordResetCompleteView.as_view(), name='password_reset_complete'),
     path('klien/', include('klien.urls')),
+    path('survey-status/', include('tracker_survei.urls')),
     path('dokumen_pendukung/', include('dokumen_pendukung.urls')),
 ] + static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)

@@ -6,12 +6,11 @@ from django.views.decorators.csrf import csrf_exempt
 from django.db.models import Q 
 import json
 
-
 # List all clients (GET)
 @csrf_exempt
 def klien_list(request):
     if request.method == 'GET':
-        kliens = DataKlien.objects.all().values('id', 'nama_klien', 'nama_perusahaan', 'daerah', 'harga_survei')
+        kliens = DataKlien.objects.filter(is_deleted=False).values('id', 'nama_klien', 'nama_perusahaan', 'daerah')
         kliens_list = list(kliens)
         return JsonResponse(kliens_list, safe=False)
 
@@ -32,8 +31,7 @@ def klien_create(request):
                 'id': klien.id,
                 'nama_klien': klien.nama_klien,
                 'nama_perusahaan': klien.nama_perusahaan,
-                'daerah': klien.daerah,
-                'harga_survei': klien.harga_survei
+                'daerah': klien.daerah
             }, status=201)
         return JsonResponse(form.errors, status=400)
 
@@ -41,19 +39,18 @@ def klien_create(request):
 @csrf_exempt
 def klien_detail(request, id):
     if request.method == 'GET':
-        klien = get_object_or_404(DataKlien, id=id)
+        klien = get_object_or_404(DataKlien, id=id, is_deleted=False)
         return JsonResponse({
             'id': klien.id,
             'nama_klien': klien.nama_klien,
             'nama_perusahaan': klien.nama_perusahaan,
-            'daerah': klien.daerah,
-            'harga_survei': klien.harga_survei
+            'daerah': klien.daerah
         })
 
 # Update client details (PUT)
 @csrf_exempt
 def klien_update(request, id):
-    klien = get_object_or_404(DataKlien, id=id)
+    klien = get_object_or_404(DataKlien, id=id, is_deleted=False)
     
     if request.method == 'PUT' or request.method == 'POST':  # You can use either PUT or POST
         try:
@@ -70,8 +67,7 @@ def klien_update(request, id):
                 'id': klien.id,
                 'nama_klien': klien.nama_klien,
                 'nama_perusahaan': klien.nama_perusahaan,
-                'daerah': klien.daerah,
-                'harga_survei': klien.harga_survei
+                'daerah': klien.daerah
             }, status=200)
         else:
             return JsonResponse(form.errors, status=400)
@@ -79,14 +75,15 @@ def klien_update(request, id):
     # Return error if method is not allowed
     return JsonResponse({"error": "Method not allowed"}, status=405)
 
-# Delete a client (DELETE)
+# Soft delete a client (DELETE)
 @csrf_exempt
 def klien_delete(request, id):
     klien = get_object_or_404(DataKlien, id=id)
     if request.method == 'DELETE':
-        klien.delete()
+        klien.is_deleted = True  # Mark as deleted
+        klien.save()
         return JsonResponse({'message': 'Client deleted successfully'}, status=204)
-        
+
 @csrf_exempt
 def search_klien(request):
     query = request.GET.get('q', '')
@@ -96,16 +93,17 @@ def search_klien(request):
         results = DataKlien.objects.filter(
             Q(nama_klien__icontains=query) |
             Q(nama_perusahaan__icontains=query) |
-            Q(daerah__icontains=query)
+            Q(daerah__icontains=query),
+            is_deleted=False  # Only search for non-deleted clients
         )
 
-    # Membuat response data dalam format JSON
+
+    # Create response data in JSON format
     data = [
         {
             'nama_klien': klien.nama_klien,
             'nama_perusahaan': klien.nama_perusahaan,
             'daerah': klien.daerah,
-            'harga_survei': klien.harga_survei,
         }
         for klien in results
     ]
