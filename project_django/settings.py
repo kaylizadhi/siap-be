@@ -75,6 +75,9 @@ CSRF_COOKIE_SECURE = False  # For development (in production, this should be Tru
 CSRF_COOKIE_HTTPONLY = False
 CSRF_USE_SESSIONS = False
 
+MEDIA_URL = '/media/'
+MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
+
 
 ROOT_URLCONF = 'project_django.urls'
 
