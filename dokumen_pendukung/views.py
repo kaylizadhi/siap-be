@@ -16,9 +16,85 @@ from django.contrib.auth import get_user_model
 from django.http import JsonResponse
 from django.contrib.auth.decorators import login_required
 from pptx import Presentation
+from django.core.files.storage import default_storage
 
 
 User = get_user_model()
+
+@csrf_exempt
+def upload_template_kontrak(request):
+    if request.method == 'POST':
+        if 'template' not in request.FILES:
+            return JsonResponse({'error': 'No file provided'}, status=400)
+
+        file = request.FILES['template']
+        
+        # Check if the file is a .ppt file
+        if not file.name.endswith('.docx'):
+            return JsonResponse({'error': 'Only .docx files are allowed'}, status=400)
+
+        # Define the path where the file should be saved
+        file_path = os.path.join(settings.BASE_DIR, 'dokumen_pendukung', 'templates', 'templateKontrak.docx')
+        
+        # Ensure the directory exists
+        os.makedirs(os.path.dirname(file_path), exist_ok=True)
+        
+        # Delete the existing file if it exists
+        if os.path.exists(file_path):
+            os.remove(file_path)
+
+        # Save the new file
+        with open(file_path, 'wb+') as destination:
+            for chunk in file.chunks():
+                destination.write(chunk)
+
+        return JsonResponse({'message': 'File uploaded successfully', 'file_name': 'templateKontrak.docx'}, status=200)
+
+    return JsonResponse({'error': 'Invalid request method'}, status=405)
+
+@api_view(['GET']) 
+def download_template_kontrak(request):
+    docx_path = os.path.join(settings.BASE_DIR, 'dokumen_pendukung/templates/templateKontrak.docx')
+    
+    # Check if the file exists before opening it
+    if os.path.exists(docx_path):
+        response = FileResponse(open(docx_path, 'rb'), content_type='application/vnd.openxmlformats-officedocument.wordprocessingml.document')
+        response['Content-Disposition'] = 'attachment; filename="templateKontrak.docx"'
+        return response
+    else:
+        return HttpResponseNotFound("Template file not found.")
+
+@csrf_exempt
+def upload_template_proposal(request):
+    if request.method == 'POST':
+        if 'template' not in request.FILES:
+            return JsonResponse({'error': 'No file provided'}, status=400)
+
+        file = request.FILES['template']
+        
+        # Check if the file is a .ppt file
+        if not file.name.endswith('.ppt'):
+            return JsonResponse({'error': 'Only .ppt files are allowed'}, status=400)
+
+        # Define the path where the file should be saved
+        file_path = os.path.join(settings.BASE_DIR, 'dokumen_pendukung', 'templates', 'templateProposal.ppt')
+        
+        # Ensure the directory exists
+        os.makedirs(os.path.dirname(file_path), exist_ok=True)
+        
+        # Delete the existing file if it exists
+        if os.path.exists(file_path):
+            os.remove(file_path)
+
+        # Save the new file
+        with open(file_path, 'wb+') as destination:
+            for chunk in file.chunks():
+                destination.write(chunk)
+
+        return JsonResponse({'message': 'File uploaded successfully', 'file_name': 'templateProposal.ppt'}, status=200)
+
+    return JsonResponse({'error': 'Invalid request method'}, status=405)
+
 
 @api_view(['GET']) 
 def download_template_proposal(request):
@@ -139,7 +215,7 @@ def generate_invoice_dp(request):
     )
 
     # Load the Excel template
-    template_path = os.path.join(settings.BASE_DIR, 'dokumen_pendukung/templates/templateInvoice.xlsx')
+    template_path = os.path.join(settings.BASE_DIR, 'dokumen_pendukung/templates/templateInvoiceDP.xlsx')
 
     workbook = load_workbook(template_path)
     sheet = workbook.active
@@ -241,7 +317,7 @@ def generate_invoice_final(request):
     )
 
     # Load the Excel template
-    template_path = os.path.join(settings.BASE_DIR, 'dokumen_pendukung/templates/templateInvoice.xlsx')
+    template_path = os.path.join(settings.BASE_DIR, 'dokumen_pendukung/templates/templateInvoiceFinal.xlsx')
 
     workbook = load_workbook(template_path)
     sheet = workbook.active
