@@ -186,7 +186,7 @@ def check_role_pengendalimutu(request):
 def check_role_admin(request):
     user = request.user
     print(user.role)
-    if user.role == 'Admin':  
+    if user.role == 'Admin Sistem':  
         return JsonResponse({'role': user.role})
     return JsonResponse({'error': 'Unauthorized'}, status=403)
 
