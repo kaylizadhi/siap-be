@@ -1,15 +1,46 @@
+# services:
+#   db:
+#     image: postgres:14-alpine
+#     ports:
+#       - '5432:5432'
+#     restart: 'no'
+#     environment:
+#       - POSTGRES_DB=siap
+#       - POSTGRES_USER=postgres
+#       - POSTGRES_PASSWORD=secret99
+#     volumes:
+#       - db:/var/lib/postgresql/data
+# volumes:
+#   db:
+#     driver: local
+
+version: '3.8'
+
 services:
-  db:
-    image: postgres:14-alpine
-    ports:
-      - '5432:5432'
-    restart: 'no'
-    environment:
-      - POSTGRES_DB=siap
-      - POSTGRES_USER=postgres
-      - POSTGRES_PASSWORD=secret99
+  web:
+    build: .
+    command: python manage.py runserver 0.0.0.0:8000
     volumes:
-      - db:/var/lib/postgresql/data
-volumes:
+      - .:/app
+    ports:
+      - "8000:8000"
+    env_file:
+      - .env
+    depends_on:
+      - db
+
   db:
-    driver: local
+    image: postgres:15
+    environment:
+      POSTGRES_DB: siap_sx1a
+      POSTGRES_USER: siap_sx1a_user
+      POSTGRES_PASSWORD: vOKcmylWgBCdjbFBhsSKqNN06mW95cdE
+      POSTGRES_HOST_AUTH_METHOD: trust
+    ports:
+      - "5432:5432"
+    networks:
+      - default
+
+networks:
+  default:
+    external: false
