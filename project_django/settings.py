@@ -45,10 +45,12 @@ INSTALLED_APPS = [
     'accounts',
     'rest_framework.authtoken',
     'klien',
+    'survei',
     'tracker_survei',
     'buatAkun',
     'daftarAkun',
     'dokumen_pendukung',
+    'souvenir',
 ]
 
 MIDDLEWARE = [
@@ -72,6 +74,9 @@ CORS_ALLOWED_ORIGINS = [
 CSRF_COOKIE_SECURE = False  # For development (in production, this should be True with HTTPS)
 CSRF_COOKIE_HTTPONLY = False
 CSRF_USE_SESSIONS = False
+
+MEDIA_URL = '/media/'
+MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
 
 
 ROOT_URLCONF = 'project_django.urls'
