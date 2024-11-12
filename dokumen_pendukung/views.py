@@ -354,12 +354,7 @@ def generate_kwitansi_dp(request):
     for cell in sheet['A']:
         cell.font = bold_times_new_roman_font
 
-    # sheet.merge_cells('A10:L10')
     sheet.merge_cells('A11:L11')
-    # sheet.merge_cells('A14:C14')
-    # sheet.merge_cells('A16:C16')
-    # sheet.merge_cells('A17:C17')
-    # sheet.merge_cells('A19:C19')
     sheet.merge_cells('E14:G14')
     sheet.merge_cells('E16:G16')
     sheet.merge_cells(start_row=17, start_column=1, end_row=18, end_column=3)
@@ -369,35 +364,13 @@ def generate_kwitansi_dp(request):
     sheet.merge_cells('K27:L27')
 
     # fill cells with input from user_data
-    # sheet['A10'] = "Kuitansi Pembayaran"
     sheet['A11'] = kwitansi_code
-
-    # sheet['A14'] = "Telah Terima Dari"
-    # sheet['D14'] = ":"
     sheet['E14'] = user_data['pembayar']
-
-    # sheet['A16'] = "Terbilang"
-    # sheet['D16'] = ":"    
     sheet['E16'] = f"# {user_data['nominal_tertulis']} #"
-
-    # sheet['A17'] = "Untuk Pembayaran"
-    # sheet['D17'] = ":"
     sheet['E17'] = user_data['tujuan_pembayaran']
-
-    # sheet['A19'] = "Keterangan"
-    # sheet['D19'] = ":"
     sheet['E19'] = user_data['additional_info']
-
-    # sheet['A27'] = "Rp"
     sheet['B27'] = user_data['amount']
-
-    sheet['K27'] = user_data['date']
-
-    # load and insert header
-    header_image_path = os.path.join(settings.BASE_DIR, 'dokumen_pendukung/images/header.png')  
-    header_img = Image(header_image_path)
-    header_img.width, header_img.height = 846.6, 136 
-    sheet.add_image(header_img, 'A1')  
+    sheet['K27'] = formatted_date
 
     # generate file name
     filename = f"KwitansiDP_{kwitansi_code}.xlsx"
@@ -429,13 +402,13 @@ def generate_kwitansi_final(request):
     month_roman = month_to_roman(current_date.month)
     year = current_date.year
     kwitansi_number = get_next_kwitansi_number()
-    kwitansi_code = f"Inv No: {kwitansi_number}/IDR-KWT/{month_roman}/{year}"
+    kwitansi_code = f"{kwitansi_number}/IDR-KWT/{month_roman}/{year}"
     kwitansi_id = f"{kwitansi_number}/IDR-KWT/{month_roman}/{year}"
 
     formatted_date = datetime.strptime(user_data['date'], '%Y-%m-%d').strftime("Jakarta, %d %B %Y")
 
-    # Save the data to the kwitansi final table
-    KwitansiFinal.objects.create(
+    # Save the data to the kwitansi_dp table
+    KwitansiDP.objects.create(
         id=kwitansi_id,
         pembayar=user_data['pembayar'],
         tujuan_pembayaran=user_data['tujuan_pembayaran'],
@@ -445,15 +418,30 @@ def generate_kwitansi_final(request):
         date=user_data['date']
     )
 
-    # load excel template for kwitansi final
+    # load excel template for kwitansi dp
     template_path = os.path.join(settings.BASE_DIR, 'dokumen_pendukung/templates/templateKwitansi.xlsx')
 
     workbook = load_workbook(template_path)
     sheet = workbook.active
+
+    times_new_roman_font = Font(name="Times New Roman")
+    bold_times_new_roman_font = Font(name="Times New Roman", bold=True)
+
+    for row in sheet.iter_rows():
+        for cell in row:
+            cell.font = times_new_roman_font
+
+    for cell in sheet['A']:
+        cell.font = bold_times_new_roman_font
+
+    sheet.merge_cells('A11:L11')
     sheet.merge_cells('E14:G14')
     sheet.merge_cells('E16:G16')
+    sheet.merge_cells(start_row=17, start_column=1, end_row=18, end_column=3)
     sheet.merge_cells(start_row=17, start_column=5, end_row=18, end_column=7)
     sheet.merge_cells('E19:G19')
+    sheet.merge_cells('B27:E27')
+    sheet.merge_cells('K27:L27')
 
     # fill cells with input from user_data
     sheet['A11'] = kwitansi_code
@@ -462,17 +450,10 @@ def generate_kwitansi_final(request):
     sheet['E17'] = user_data['tujuan_pembayaran']
     sheet['E19'] = user_data['additional_info']
     sheet['B27'] = user_data['amount']
-    sheet['L27'] = user_data['date']
-
-    # load and insert header
-    header_image_path = os.path.join(settings.BASE_DIR, 'dokumen_pendukung/images/header.png')  
-    header_img = Image(header_image_path)
-    header_img.width, header_img.height = 846.6, 136  
-    sheet.add_image(header_img, 'A1') 
+    sheet['K27'] = formatted_date
 
     # generate file name
-    filename = f"{user_data['survey_name']}_KwitansiFinal_{kwitansi_code}.xlsx"
-
+    filename = f"KwitansiFinal_{kwitansi_code}.xlsx"
     # response as excel file
     response = HttpResponse(content_type='application/vnd.openxmlformats-officedocument.spreadsheetml.sheet')
     response['Content-Disposition'] = f'attachment; filename={filename}'
