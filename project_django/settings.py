@@ -185,6 +185,7 @@ DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 # Allow requests from the Next.js frontend
 CORS_ALLOWED_ORIGINS = [
     "http://localhost:3000",  # Frontend URL
+    "https://siap-fe-production.up.railway.app"
 ]
 
 REST_FRAMEWORK = {
