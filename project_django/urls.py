@@ -17,12 +17,9 @@ from django.contrib import admin
 from django.urls import path, include
 from accounts.views import login_view, logout_view, dashboard_view, get_csrf_token, profil_view, get_security_question, verify_security_answer, change_password
 from django.contrib.auth import views as auth_views
-<<<<<<< project_django/urls.py
-=======
 from django.conf import settings
 from django.conf.urls.static import static
-from tracker_survei.views import SurveyStatusView
->>>>>>> project_django/urls.py
+#from tracker_survei.views import SurveyStatusView
 
 
 urlpatterns = [
