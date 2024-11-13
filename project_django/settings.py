@@ -13,11 +13,12 @@ https://docs.djangoproject.com/en/4.1/ref/settings/
 import os
 import dj_database_url
 from pathlib import Path
+from decouple import config
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
 
-PRODUCTION = os.getenv('DATABASE_URL') is not None
+PRODUCTION = os.getenv('DATABASE_PUBLIC_URL') is not None
 
 # Quick-start development settings - unsuitable for production
 # See https://docs.djangoproject.com/en/4.1/howto/deployment/checklist/
@@ -106,21 +107,31 @@ WSGI_APPLICATION = 'project_django.wsgi.application'
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.postgresql',
-        'NAME': 'siap_sx1a', 
-        'USER': 'siap_sx1a_user',
-        'PASSWORD': 'vOKcmylWgBCdjbFBhsSKqNN06mW95cdE',
-        'HOST': 'dpg-csguk988fa8c7393s7b0-a.singapore-postgres.render.com', 
-        'PORT': '5432',
+        'NAME': os.getenv('PGDATABASE'),  # Use PGDATABASE for the database name
+        'USER': os.getenv('PGUSER'),  # PGUSER is typically used for the username
+        'PASSWORD': os.getenv('PGPASSWORD'),  # Use PGPASSWORD for the password
+        'HOST': os.getenv('PGHOST'),  # Use PGHOST for the host
+        'PORT': os.getenv('PGPORT'),  # Use PGPORT for the port
     }
 }
 
 AUTH_USER_MODEL = 'accounts.User'
 
-
-if PRODUCTION:
-    DATABASES['default'] = dj_database_url.config(
-        conn_max_age=600, ssl_require=True
+DATABASES = {
+    "default": dj_database_url.config(
+        default=config("DATABASE_PUBLIC_URL", default="postgres://postgres@localhost:5432/postgres"),
+        conn_max_age=1800,
     )
+}
+
+# DATABASES = {
+#         'default': dj_database_url.parse(
+#             config('DATABASE_PUBLIC_URL', default='postgres://postgres@localhost:5432/postgres')
+#         )
+#         # DATABASES['default'] = dj_database_url.config(
+#     #     conn_max_age=600, ssl_require=True
+#     # )
+#     }
 
 # Password validation
 # https://docs.djangoproject.com/en/4.1/ref/settings/#auth-password-validators

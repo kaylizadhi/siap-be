@@ -32,9 +32,9 @@ services:
   db:
     image: postgres:15
     environment:
-      POSTGRES_DB: siap_sx1a
-      POSTGRES_USER: siap_sx1a_user
-      POSTGRES_PASSWORD: vOKcmylWgBCdjbFBhsSKqNN06mW95cdE
+      POSTGRES_DB: railway
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: kpljCtwbeZSnbclsqeLUpBdcfbXeqnjt
       POSTGRES_HOST_AUTH_METHOD: trust
     ports:
       - "5432:5432"
