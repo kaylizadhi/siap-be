@@ -104,27 +104,27 @@ WSGI_APPLICATION = 'project_django.wsgi.application'
 # Database
 # https://docs.djangoproject.com/en/4.1/ref/settings/#databases
 
-DATABASES = {
-    'default': {
-        'ENGINE': 'django.db.backends.postgresql',
-        'NAME': os.getenv('PGDATABASE'),  # Use PGDATABASE for the database name
-        'USER': os.getenv('PGUSER'),  # PGUSER is typically used for the username
-        'PASSWORD': os.getenv('PGPASSWORD'),  # Use PGPASSWORD for the password
-        'HOST': os.getenv('PGHOST'),  # Use PGHOST for the host
-        'PORT': os.getenv('PGPORT'),  # Use PGPORT for the port
-    }
-}
+# DATABASES = {
+#     'default': {
+#         'ENGINE': 'django.db.backends.postgresql',
+#         'NAME': os.getenv('PGDATABASE'),  # Use PGDATABASE for the database name
+#         'USER': os.getenv('PGUSER'),  # PGUSER is typically used for the username
+#         'PASSWORD': os.getenv('PGPASSWORD'),  # Use PGPASSWORD for the password
+#         'HOST': os.getenv('PGHOST'),  # Use PGHOST for the host
+#         'PORT': os.getenv('PGPORT'),  # Use PGPORT for the port
+#     }
+# }
 
 AUTH_USER_MODEL = 'accounts.User'
 
-DATABASES = {
-    "default": dj_database_url.config("DATABASE_PUBLIC_URL", conn_max_age=1800,)
-}
+# DATABASES = {
+#     "default": dj_database_url.config("DATABASE_PUBLIC_URL", conn_max_age=1800,)
+# }
 
 DATABASES = {
     "default": dj_database_url.config(
         default=os.getenv(
-            "DATABASE_URL",
+            "DATABASE_PUBLIC_URL",
         ),
         conn_max_age=600,  # Keeps connections open for performance
     )
