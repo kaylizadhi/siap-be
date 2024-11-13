@@ -10,7 +10,6 @@ For the full list of settings and their values, see
 https://docs.djangoproject.com/en/4.1/ref/settings/
 """
 
-from logging import config
 import os
 import dj_database_url
 from pathlib import Path
@@ -120,6 +119,16 @@ AUTH_USER_MODEL = 'accounts.User'
 
 DATABASES = {
     "default": dj_database_url.config("DATABASE_PUBLIC_URL", conn_max_age=1800,)
+}
+
+DATABASES = {
+    "default": dj_database_url.config(
+        default=os.getenv(
+            "DATABASE_URL",
+            "postgres://postgres:password@localhost:5432/postgres"
+        ),
+        conn_max_age=600,  # Keeps connections open for performance
+    )
 }
 
 # DATABASES = {
