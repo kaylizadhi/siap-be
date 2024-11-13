@@ -13,7 +13,7 @@ services:
     depends_on:
       - db
     environment:
-      DATABASE_PUBLIC_URL: postgresql://postgres:kpljCtwbeZSnbclsqeLUpBdcfbXeqnjt@db:5432/railway
+      DATABASE_PUBLIC_URL: postgresql://postgres:kpljCtwbeZSnbclsqeLUpBdcfbXeqnjt@junction.proxy.rlwy.net:45589/railway
 
   db:
     image: postgres:15
