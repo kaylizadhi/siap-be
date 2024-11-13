@@ -13,7 +13,6 @@ https://docs.djangoproject.com/en/4.1/ref/settings/
 import os
 import dj_database_url
 from pathlib import Path
-from decouple import config
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
@@ -118,10 +117,7 @@ DATABASES = {
 AUTH_USER_MODEL = 'accounts.User'
 
 DATABASES = {
-    "default": dj_database_url.config(
-        default=config("DATABASE_PUBLIC_URL", default="postgres://postgres@localhost:5432/postgres"),
-        conn_max_age=1800,
-    )
+    "default": dj_database_url.config("DATABASE_PUBLIC_URL", conn_max_age=1800,)
 }
 
 # DATABASES = {
