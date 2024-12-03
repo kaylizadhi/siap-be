@@ -63,3 +63,24 @@ def delete_survei(request, id):
 
     survei.delete()
     return Response(status=status.HTTP_204_NO_CONTENT)
+
+@api_view(['GET'])
+def get_location_data(request):
+    param = request.query_params.get('param', '').lower()
+
+    if param == 'provinsi':
+        data = [
+            {"id": "Jawa Barat", "name": "Jawa Barat"},
+            {"id": "Jawa Tengah", "name": "Jawa Tengah"},
+            {"id": "Jawa Timur", "name": "Jawa Timur"},
+        ]
+    elif param == 'kabupaten/kota':
+        data = [
+            {"id": "Bandung", "name": "Bandung"},
+            {"id": "Semarang", "name": "Semarang"},
+            {"id": "Surabaya", "name": "Surabaya"},
+        ]
+    else:
+        return Response({"error": "Parameter tidak valid. Gunakan 'provinsi' atau 'kabupaten/kota'."}, status=400)
+
+    return Response(data)

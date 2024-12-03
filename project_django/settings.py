@@ -105,11 +105,11 @@ WSGI_APPLICATION = 'project_django.wsgi.application'
 
 DATABASES = {
     'default': {
-        'ENGINE': 'django.db.backends.postgresql',
-        'NAME': 'siap_sx1a', 
-        'USER': 'siap_sx1a_user',
-        'PASSWORD': 'vOKcmylWgBCdjbFBhsSKqNN06mW95cdE',
-        'HOST': 'dpg-csguk988fa8c7393s7b0-a.singapore-postgres.render.com', 
+        'ENGINE': 'django.db.backends.postgresql_psycopg2',
+        'NAME': 'siap', 
+        'USER': 'postgres',
+        'PASSWORD': 'secret99',
+        'HOST': 'localhost', 
         'PORT': '5432',
     }
 }
