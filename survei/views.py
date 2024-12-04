@@ -74,7 +74,7 @@ def get_location_data(request):
             {"id": "Jawa Tengah", "name": "Jawa Tengah"},
             {"id": "Jawa Timur", "name": "Jawa Timur"},
         ]
-    elif param == 'kabupaten/kota':
+    elif param == 'kota':
         data = [
             {"id": "Bandung", "name": "Bandung"},
             {"id": "Semarang", "name": "Semarang"},
@@ -85,6 +85,6 @@ def get_location_data(request):
             {"id":"Indonesia", 'name': 'Indonesia'}
         ]
     else:
-        return Response({"error": "Parameter tidak valid. Gunakan 'provinsi' atau 'kabupaten/kota'."}, status=400)
+        return Response({"error": "Parameter tidak valid. Gunakan 'provinsi' atau 'kabupaten'."}, status=400)
 
     return Response(data)
