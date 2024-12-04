@@ -56,7 +56,15 @@ def dokumen_list(request):
 @csrf_exempt
 def dokumen_delete(request, id):
     decoded_id = unquote(id)
-    dokumen = get_object_or_404(InvoiceDP, id=decoded_id)
+    if get_object_or_404(InvoiceDP, id=decoded_id):
+        dokumen = get_object_or_404(InvoiceDP, id=decoded_id)
+    elif get_object_or_404(InvoiceFinal, id=decoded_id):
+        dokumen = get_object_or_404(InvoiceFinal, id=decoded_id)
+    elif get_object_or_404(KwitansiDP, id=decoded_id):
+        dokumen = get_object_or_404(KwitansiDP, id=decoded_id)
+    elif get_object_or_404(KwitansiFinal, id=decoded_id):
+        dokumen = get_object_or_404(KwitansiFinal, id=decoded_id)
+
     if request.method == 'DELETE':
         dokumen.is_deleted =True  # Mark as deleted
         dokumen.save()
