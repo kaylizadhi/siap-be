@@ -52,6 +52,7 @@ INSTALLED_APPS = [
     'daftarAkun',
     'dokumen_pendukung',
     'souvenir',
+    'dashboard',
 ]
 
 MIDDLEWARE = [

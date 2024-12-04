@@ -1,5 +1,6 @@
 from django.http import JsonResponse
 from django.shortcuts import get_object_or_404
+from django.core.paginator import Paginator
 from .models import DataKlien
 from .forms import DataKlienForm
 from django.views.decorators.csrf import csrf_exempt
@@ -10,9 +11,43 @@ import json
 @csrf_exempt
 def klien_list(request):
     if request.method == 'GET':
-        kliens = DataKlien.objects.filter(is_deleted=False).values('id', 'nama_klien', 'nama_perusahaan', 'daerah')
-        kliens_list = list(kliens)
-        return JsonResponse(kliens_list, safe=False)
+        page_number = request.GET.get('page', 1)
+        page_size = request.GET.get('page_size', 10)
+        search_query = request.GET.get('search', '')
+
+        # Base queryset
+        kliens = DataKlien.objects.filter(is_deleted=False)
+        
+        # Apply search if query exists
+        if search_query:
+            kliens = kliens.filter(
+                Q(nama_klien__icontains=search_query) |
+                Q(nama_perusahaan__icontains=search_query) |
+                Q(daerah__icontains=search_query)
+            )
+        
+        # Order and get values
+        kliens = kliens.values(
+            'id', 'nama_klien', 'nama_perusahaan', 'daerah'
+        ).order_by('nama_klien')
+        
+        paginator = Paginator(kliens, page_size)
+
+        try:
+            page_obj = paginator.page(page_number)
+        except:
+            page_obj = paginator.page(1)
+
+        response_data = {
+            'results': list(page_obj.object_list),
+            'total_pages': paginator.num_pages,
+            'current_page': page_obj.number,
+            'total_items': paginator.count,
+            'has_next': page_obj.has_next(),
+            'has_previous': page_obj.has_previous(),
+        }
+        
+        return JsonResponse(response_data, safe=False)
 
 # Create a new client (POST)
 @csrf_exempt

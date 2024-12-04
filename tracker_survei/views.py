@@ -5,8 +5,12 @@ from rest_framework.response import Response
 from django.shortcuts import get_object_or_404
 from django.core.exceptions import ValidationError
 from .models import TrackerSurvei
-from .serializers import TrackerSurveiSerializer
+from .serializers import TrackerSurveiSerializer, TrackerGet
 import logging
+from survei.models import Survei
+from survei.serializers import SurveiGet, SurveiPost
+from django.core.paginator import Paginator
+from django.db.models import Q
 
 logger = logging.getLogger(__name__)
 
@@ -112,7 +116,7 @@ def handle_tracker_update(request, survei_id, allowed_roles):
         )
 
 @api_view(['GET'])
-@permission_classes([IsAuthenticated])
+# @permission_classes([IsAuthenticated])
 def get_tracker_detail(request, survei_id):
     try:
         tracker = get_object_or_404(TrackerSurvei, survei_id=survei_id)
@@ -148,3 +152,52 @@ def update_logistik_status(request, survei_id):
 def update_pengendali_mutu_status(request, survei_id):
     """Update tracker status for Pengendali Mutu role."""
     return handle_tracker_update(request, survei_id, ['Pengendali Mutu'])
+
+@api_view(['GET'])
+def get_list_survei(request):
+    # Get pagination parameters
+    page_number = request.GET.get('page', 1)
+    page_size = request.GET.get('page_size', 10)
+    search_query = request.GET.get('search', '')
+
+    # Base queryset
+    survei = Survei.objects.all()
+    
+    # Apply search if query exists
+    if search_query:
+        survei = survei.filter(
+            Q(nama_survei__icontains=search_query) |
+            Q(nama_klien__icontains=search_query)
+        )
+    
+    # Order by nama_survei
+    survei = survei.order_by('nama_survei')
+    
+    # Create paginator
+    paginator = Paginator(survei, page_size)
+
+    try:
+        page_obj = paginator.page(page_number)
+    except:
+        page_obj = paginator.page(1)
+
+    # Serialize the paginated data
+    serializer = SurveiPost(page_obj.object_list, many=True)
+    
+    # Prepare response data
+    response_data = {
+        'results': serializer.data,
+        'total_pages': paginator.num_pages,
+        'current_page': page_obj.number,
+        'count': paginator.count,
+        'has_next': page_obj.has_next(),
+        'has_previous': page_obj.has_previous(),
+    }
+    
+    return Response(response_data)
+
+@api_view(['GET'])
+def get_list_dashboard(request):
+    survei = TrackerSurvei.objects.all()
+    serializer = TrackerGet(survei, many=True)
+    return Response(serializer.data, status=status.HTTP_200_OK)

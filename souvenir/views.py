@@ -7,10 +7,12 @@ from rest_framework import status
 from rest_framework.pagination import PageNumberPagination
 from rest_framework.views import APIView
 
+
 class SouvenirPagination(PageNumberPagination):
     page_size = 10  # Jumlah item per halaman
     page_size_query_param = 'page_size'  # Parameter untuk mengubah ukuran halaman
     max_page_size = 100  # Ukuran maksimum halaman
+
 
 @api_view(['GET'])
 def get_list_souvenir(request):
@@ -20,6 +22,7 @@ def get_list_souvenir(request):
     result_page = paginator.paginate_queryset(souvenir, request)
     serializer = SouvenirGet(result_page, many=True)
     return paginator.get_paginated_response(serializer.data)
+
 
 @api_view(['GET'])
 def get_souvenir_detail(request, id):
@@ -31,6 +34,7 @@ def get_souvenir_detail(request, id):
 
     serializer = SouvenirGet(souvenir)
     return Response(serializer.data, status=status.HTTP_200_OK)
+
 
 @api_view(['POST'])
 def add_souvenir(request):
@@ -59,6 +63,7 @@ def add_souvenir(request):
     
     return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
+
 @api_view(['PATCH'])
 def update_souvenir(request, id):
     try:
@@ -74,6 +79,7 @@ def update_souvenir(request, id):
     
     return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
+
 @api_view(['DELETE'])
 def delete_souvenir(request, id):
     try:
@@ -86,6 +92,7 @@ def delete_souvenir(request, id):
     souvenir.is_deleted = True
     souvenir.save()
     return Response(status=status.HTTP_204_NO_CONTENT)
+
 
 @api_view(['GET'])
 def check_souvenir(request, nama_souvenir):

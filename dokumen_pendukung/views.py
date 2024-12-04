@@ -200,20 +200,25 @@ def generate_invoice_dp(request):
     invoice_number = get_next_invoice_number()
     invoice_code = f"Inv No: {invoice_number}/SURV/LSI/{month_roman}/{year}"
     invoice_id = f"{invoice_number}/SURV/LSI/{month_roman}/{year}"
+    doc = "invoiceDP"
 
     # Save the data to the invoice_dp table
-    InvoiceDP.objects.create(
-        id=invoice_id,
-        client_name=user_data['client_name'],
-        survey_name=user_data['survey_name'],
-        respondent_count=user_data['respondent_count'],
-        address=user_data['address'],
-        amount=user_data['amount'],
-        nominal_tertulis=user_data['nominal_tertulis'],
-        paid_percentage=user_data['paid_percentage'],
-        additional_info=user_data['additional_info'],
-        date=user_data['date']
-    )
+    if not InvoiceDP.objects.filter(id=invoice_id).exists(): 
+        InvoiceDP.objects.create(
+            id=invoice_id,
+            client_name=user_data['client_name'],
+            survey_name=user_data['survey_name'],
+            respondent_count=user_data['respondent_count'],
+            address=user_data['address'],
+            amount=user_data['amount'],
+            nominal_tertulis=user_data['nominal_tertulis'],
+            paid_percentage=user_data['paid_percentage'],
+            additional_info=user_data['additional_info'],
+            date=user_data['date'],
+            doc_type=doc
+        )
+    else:
+        print(f"Record with id {invoice_id} already exists. Skipping creation.")
 
     # Load the Excel template
     template_path = os.path.join(settings.BASE_DIR, 'dokumen_pendukung/templates/templateInvoiceDP.xlsx')
@@ -277,6 +282,172 @@ def generate_invoice_dp(request):
     return HttpResponse(status=405)  # Method not allowed for non-POST requests
 
 @api_view(['POST'])
+def export_existing_invoice_dp(request):
+    if request.method == 'POST':
+        # Parse JSON data from the request body
+        data = json.loads(request.body)
+    
+    user_data = {
+        'invoice_code': data.get('invoice_id', ''),
+        'client_name': data.get('client_name', 'Default Client'),
+        'survey_name': data.get('survey_name', 'Default Survey'),
+        'respondent_count': data.get('respondent_count', '0'),
+        'address': data.get('address', 'Default Address'),
+        'amount': data.get('amount', '0'),
+        'paid_percentage': data.get('paid_percentage', '60'),
+        'nominal_tertulis' : data.get('nominal_tertulis', ''),
+        'additional_info': data.get('additional_info', 'No additional info'),
+        'date': data.get('date', datetime.now().strftime('%Y-%m-%d')),
+    }
+
+
+    # Load the Excel template
+    template_path = os.path.join(settings.BASE_DIR, 'dokumen_pendukung/templates/templateInvoiceDP.xlsx')
+
+    workbook = load_workbook(template_path)
+    sheet = workbook.active
+    respondent_message = f"sampel {user_data['respondent_count']} responden"
+    paid_percentage_message = f"{user_data['paid_percentage']}%"
+    formatted_date = datetime.strptime(user_data['date'], "%Y-%m-%d").strftime("%d %B %Y")
+    date_message = f"Date: {formatted_date}"
+    sheet.merge_cells('B31:E31')
+    sheet.merge_cells('C16:F16')
+    sheet.merge_cells('B27:E27')
+    sheet.merge_cells('B28:E28')
+    sheet.merge_cells('G14:H14')
+
+    # Fill out the required cells in the Excel file with user data
+    sheet['A9'] = user_data['invoice_code']
+    sheet['C16'] = user_data['client_name']           
+    sheet['B27'] = user_data['survey_name']           
+    sheet['B31'] = respondent_message      
+    sheet['C18'] = user_data['address']               
+    sheet['G27'] = user_data['amount']                
+    sheet['C35'] = user_data['nominal_tertulis']
+    sheet['C35'].font = Font(name="Times New Roman", bold=True, underline="single")
+    sheet['F27'] = paid_percentage_message      
+    sheet['B28'] = user_data['additional_info']       
+    sheet['G14'] = date_message                 
+
+    # Path to the image you want to add
+    header_image_path = os.path.join(settings.BASE_DIR, 'dokumen_pendukung/images/header.png')  
+    header_img = Image(header_image_path)
+    header_img.width, header_img.height = 846.6, 136  
+
+    # Path to the image you want to add
+    invoice_image_path = os.path.join(settings.BASE_DIR, 'dokumen_pendukung/images/invoice.png') 
+    invoice_img = Image(invoice_image_path)
+    invoice_img.width, invoice_img.height = 275.9, 75.59
+
+    # Path to the image you want to add
+    ttd_image_path = os.path.join(settings.BASE_DIR, 'dokumen_pendukung/images/ttd.png')
+    ttd_img = Image(ttd_image_path)
+    ttd_img.width, ttd_img.height = 314.83, 173.48
+
+    # Add image to the specified cell location
+    sheet.add_image(header_img, 'A1') 
+    sheet.add_image(invoice_img, 'G8')
+    sheet.add_image(ttd_img, 'G37')
+
+    invoice_id = f"Inv No: {user_data['invoice_code']}"
+
+    # Generate a filename
+    filename = f"{user_data['survey_name']}_invoiceDP_{invoice_id}.xlsx"
+
+    # Prepare the response as an Excel file
+    response = HttpResponse(content_type='application/vnd.openxmlformats-officedocument.spreadsheetml.sheet')
+    response['Content-Disposition'] = f'attachment; filename={filename}'
+
+    # Save workbook to the response
+    workbook.save(response)
+    return response
+
+    return HttpResponse(status=405)  # Method not allowed for non-POST requests
+
+@api_view(['POST'])
+def export_existing_invoice_final(request):
+    if request.method == 'POST':
+        # Parse JSON data from the request body
+        data = json.loads(request.body)
+    
+    user_data = {
+        'invoice_code': data.get('invoice_id', ''),
+        'client_name': data.get('client_name', 'Default Client'),
+        'survey_name': data.get('survey_name', 'Default Survey'),
+        'respondent_count': data.get('respondent_count', '0'),
+        'address': data.get('address', 'Default Address'),
+        'amount': data.get('amount', '0'),
+        'paid_percentage': data.get('paid_percentage', '60'),
+        'nominal_tertulis' : data.get('nominal_tertulis', ''),
+        'additional_info': data.get('additional_info', 'No additional info'),
+        'date': data.get('date', datetime.now().strftime('%Y-%m-%d')),
+    }
+
+
+    # Load the Excel template
+    template_path = os.path.join(settings.BASE_DIR, 'dokumen_pendukung/templates/templateInvoiceFinal.xlsx')
+
+    workbook = load_workbook(template_path)
+    sheet = workbook.active
+    respondent_message = f"sampel {user_data['respondent_count']} responden"
+    paid_percentage_message = f"{user_data['paid_percentage']}%"
+    formatted_date = datetime.strptime(user_data['date'], "%Y-%m-%d").strftime("%d %B %Y")
+    date_message = f"Date: {formatted_date}"
+    sheet.merge_cells('B31:E31')
+    sheet.merge_cells('C16:F16')
+    sheet.merge_cells('B27:E27')
+    sheet.merge_cells('B28:E28')
+    sheet.merge_cells('G14:H14')
+
+    # Fill out the required cells in the Excel file with user data
+    sheet['A9'] = user_data['invoice_code']
+    sheet['C16'] = user_data['client_name']           
+    sheet['B27'] = user_data['survey_name']           
+    sheet['B31'] = respondent_message      
+    sheet['C18'] = user_data['address']               
+    sheet['G27'] = user_data['amount']                
+    sheet['C35'] = user_data['nominal_tertulis']
+    sheet['C35'].font = Font(name="Times New Roman", bold=True, underline="single")
+    sheet['F27'] = paid_percentage_message      
+    sheet['B28'] = user_data['additional_info']       
+    sheet['G14'] = date_message                 
+
+    # Path to the image you want to add
+    header_image_path = os.path.join(settings.BASE_DIR, 'dokumen_pendukung/images/header.png')  
+    header_img = Image(header_image_path)
+    header_img.width, header_img.height = 846.6, 136  
+
+    # Path to the image you want to add
+    invoice_image_path = os.path.join(settings.BASE_DIR, 'dokumen_pendukung/images/invoice.png') 
+    invoice_img = Image(invoice_image_path)
+    invoice_img.width, invoice_img.height = 275.9, 75.59
+
+    # Path to the image you want to add
+    ttd_image_path = os.path.join(settings.BASE_DIR, 'dokumen_pendukung/images/ttd.png')
+    ttd_img = Image(ttd_image_path)
+    ttd_img.width, ttd_img.height = 314.83, 173.48
+
+    # Add image to the specified cell location
+    sheet.add_image(header_img, 'A1') 
+    sheet.add_image(invoice_img, 'G8')
+    sheet.add_image(ttd_img, 'G37')
+
+    invoice_id = f"Inv No: {user_data['invoice_code']}"
+
+    # Generate a filename
+    filename = f"{user_data['survey_name']}_invoiceFinal_{invoice_id}.xlsx"
+
+    # Prepare the response as an Excel file
+    response = HttpResponse(content_type='application/vnd.openxmlformats-officedocument.spreadsheetml.sheet')
+    response['Content-Disposition'] = f'attachment; filename={filename}'
+
+    # Save workbook to the response
+    workbook.save(response)
+    return response
+
+    return HttpResponse(status=405)  # Method not allowed for non-POST requests
+
+@api_view(['POST'])
 def generate_invoice_final(request):
     if request.method == 'POST':
         # Parse JSON data from the request body
@@ -302,6 +473,7 @@ def generate_invoice_final(request):
     invoice_number = get_next_invoice_number()
     invoice_code = f"Inv No: {invoice_number}/SURV/LSI/{month_roman}/{year}"
     invoice_id = f"{invoice_number}/SURV/LSI/{month_roman}/{year}"
+    doc = "invoiceFinal"
 
     # Save the data to the invoice_dp table
     InvoiceFinal.objects.create(
@@ -314,7 +486,8 @@ def generate_invoice_final(request):
         nominal_tertulis=user_data['nominal_tertulis'],
         paid_percentage=user_data['paid_percentage'],
         additional_info=user_data['additional_info'],
-        date=user_data['date']
+        date=user_data['date'],
+        doc_type=doc
     )
 
     # Load the Excel template
@@ -400,18 +573,24 @@ def generate_kwitansi_dp(request):
     kwitansi_number = get_next_kwitansi_number()
     kwitansi_code = f"{kwitansi_number}/IDR-KWT/{month_roman}/{year}"
     kwitansi_id = f"{kwitansi_number}/IDR-KWT/{month_roman}/{year}"
+    doc = "kwitansiDP"
+
+    formatted_date = datetime.strptime(user_data['date'], '%Y-%m-%d').strftime("Jakarta, %d %B %Y")
 
     formatted_date = datetime.strptime(user_data['date'], '%Y-%m-%d').strftime("Jakarta, %d %B %Y")
 
     # Save the data to the kwitansi_dp table
     KwitansiDP.objects.create(
         id=kwitansi_id,
-        pembayar=user_data['pembayar'],
-        tujuan_pembayaran=user_data['tujuan_pembayaran'],
+        # pembayar=user_data['pembayar'],
+        # tujuan_pembayaran=user_data['tujuan_pembayaran'],
+        client_name=user_data['pembayar'],
+        survey_name=user_data['tujuan_pembayaran'],
         nominal_tertulis=user_data['nominal_tertulis'],
         additional_info=user_data['additional_info'],
         amount=user_data['amount'],
-        date=user_data['date']
+        date=user_data['date'],
+        doc_type=doc
     )
 
     # load excel template for kwitansi dp
@@ -459,6 +638,135 @@ def generate_kwitansi_dp(request):
     return response
 
 @api_view(['POST'])
+def export_existing_kwitansi_dp(request):
+    if request.method == 'POST':
+        # Parse JSON data from the request body
+        data = json.loads(request.body)
+    
+    user_data = {
+        'kwitansi_code': data.get('kwitansi_id', ''),
+        'pembayar': data.get('pembayar', ''),
+        'tujuan_pembayaran': data.get('tujuan_pembayaran', ''),
+        'amount': data.get('amount', '0'),
+        'nominal_tertulis' : data.get('nominal_tertulis', ''),
+        'additional_info': data.get('additional_info', ''),
+        'date': data.get('date', datetime.now().strftime('%Y-%m-%d')),
+    }
+
+
+    formatted_date = datetime.strptime(user_data['date'], '%Y-%m-%d').strftime("Jakarta, %d %B %Y")
+
+
+    # load excel template for kwitansi dp
+    template_path = os.path.join(settings.BASE_DIR, 'dokumen_pendukung/templates/templateKwitansi.xlsx')
+
+    workbook = load_workbook(template_path)
+    sheet = workbook.active
+
+    times_new_roman_font = Font(name="Times New Roman")
+    bold_times_new_roman_font = Font(name="Times New Roman", bold=True)
+
+    for row in sheet.iter_rows():
+        for cell in row:
+            cell.font = times_new_roman_font
+
+    for cell in sheet['A']:
+        cell.font = bold_times_new_roman_font
+
+    sheet.merge_cells('A11:L11')
+    sheet.merge_cells('E14:G14')
+    sheet.merge_cells('E16:G16')
+    sheet.merge_cells(start_row=17, start_column=1, end_row=18, end_column=3)
+    sheet.merge_cells(start_row=17, start_column=5, end_row=18, end_column=7)
+    sheet.merge_cells('E19:G19')
+    sheet.merge_cells('B27:E27')
+    sheet.merge_cells('K27:L27')
+
+    # fill cells with input from user_data
+    sheet['A11'] = user_data['kwitansi_code']
+    sheet['E14'] = user_data['pembayar']
+    sheet['E16'] = f"# {user_data['nominal_tertulis']} #"
+    sheet['E17'] = user_data['tujuan_pembayaran']
+    sheet['E19'] = user_data['additional_info']
+    sheet['B27'] = user_data['amount']
+    sheet['K27'] = formatted_date
+
+    # generate file name
+    filename = f"KwitansiDP_{user_data['kwitansi_code']}.xlsx"
+    # response as excel file
+    response = HttpResponse(content_type='application/vnd.openxmlformats-officedocument.spreadsheetml.sheet')
+    response['Content-Disposition'] = f'attachment; filename={filename}'
+
+    # save  workbook to the response
+    workbook.save(response)
+    return response
+
+@api_view(['POST'])
+def export_existing_kwitansi_final(request):
+    if request.method == 'POST':
+        # Parse JSON data from the request body
+        data = json.loads(request.body)
+    
+    user_data = {
+        'kwitansi_code': data.get('kwitansi_id', ''),
+        'pembayar': data.get('pembayar', ''),
+        'tujuan_pembayaran': data.get('tujuan_pembayaran', ''),
+        'amount': data.get('amount', '0'),
+        'nominal_tertulis' : data.get('nominal_tertulis', ''),
+        'additional_info': data.get('additional_info', ''),
+        'date': data.get('date', datetime.now().strftime('%Y-%m-%d')),
+    }
+
+
+    formatted_date = datetime.strptime(user_data['date'], '%Y-%m-%d').strftime("Jakarta, %d %B %Y")
+
+
+    # load excel template for kwitansi dp
+    template_path = os.path.join(settings.BASE_DIR, 'dokumen_pendukung/templates/templateKwitansi.xlsx')
+
+    workbook = load_workbook(template_path)
+    sheet = workbook.active
+
+    times_new_roman_font = Font(name="Times New Roman")
+    bold_times_new_roman_font = Font(name="Times New Roman", bold=True)
+
+    for row in sheet.iter_rows():
+        for cell in row:
+            cell.font = times_new_roman_font
+
+    for cell in sheet['A']:
+        cell.font = bold_times_new_roman_font
+
+    sheet.merge_cells('A11:L11')
+    sheet.merge_cells('E14:G14')
+    sheet.merge_cells('E16:G16')
+    sheet.merge_cells(start_row=17, start_column=1, end_row=18, end_column=3)
+    sheet.merge_cells(start_row=17, start_column=5, end_row=18, end_column=7)
+    sheet.merge_cells('E19:G19')
+    sheet.merge_cells('B27:E27')
+    sheet.merge_cells('K27:L27')
+
+    # fill cells with input from user_data
+    sheet['A11'] = user_data['kwitansi_code']
+    sheet['E14'] = user_data['pembayar']
+    sheet['E16'] = f"# {user_data['nominal_tertulis']} #"
+    sheet['E17'] = user_data['tujuan_pembayaran']
+    sheet['E19'] = user_data['additional_info']
+    sheet['B27'] = user_data['amount']
+    sheet['K27'] = formatted_date
+
+    # generate file name
+    filename = f"KwitansiFinal_{user_data['kwitansi_code']}.xlsx"
+    # response as excel file
+    response = HttpResponse(content_type='application/vnd.openxmlformats-officedocument.spreadsheetml.sheet')
+    response['Content-Disposition'] = f'attachment; filename={filename}'
+
+    # save  workbook to the response
+    workbook.save(response)
+    return response
+
+
+@api_view(['POST'])
 def generate_kwitansi_final(request):
     if request.method == 'POST':
         # Parse JSON data from the request body
@@ -480,18 +788,24 @@ def generate_kwitansi_final(request):
     kwitansi_number = get_next_kwitansi_number()
     kwitansi_code = f"{kwitansi_number}/IDR-KWT/{month_roman}/{year}"
     kwitansi_id = f"{kwitansi_number}/IDR-KWT/{month_roman}/{year}"
+    doc = "kwitansiFinal"
+
+    formatted_date = datetime.strptime(user_data['date'], '%Y-%m-%d').strftime("Jakarta, %d %B %Y")
 
     formatted_date = datetime.strptime(user_data['date'], '%Y-%m-%d').strftime("Jakarta, %d %B %Y")
 
     # Save the data to the kwitansi_dp table
     KwitansiDP.objects.create(
         id=kwitansi_id,
-        pembayar=user_data['pembayar'],
-        tujuan_pembayaran=user_data['tujuan_pembayaran'],
+        # pembayar=user_data['pembayar'],
+        # tujuan_pembayaran=user_data['tujuan_pembayaran'],
+        client_name=user_data['pembayar'],
+        survey_name=user_data['tujuan_pembayaran'],
         nominal_tertulis=user_data['nominal_tertulis'],
         additional_info=user_data['additional_info'],
         amount=user_data['amount'],
-        date=user_data['date']
+        date=user_data['date'],
+        doc_type=doc
     )
 
     # load excel template for kwitansi dp

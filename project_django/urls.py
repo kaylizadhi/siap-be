@@ -15,10 +15,11 @@ Including another URLconf
 """
 from django.contrib import admin
 from django.urls import path, include
-from accounts.views import login_view, logout_view, dashboard_view, get_csrf_token, profil_view, get_security_question, verify_security_answer, change_password
+from accounts.views import login_view, logout_view, dashboard_view, get_csrf_token, profil_view, get_security_question, verify_security_answer, change_password, get_sidebar_role, check_role_dashboard
 from django.contrib.auth import views as auth_views
 from django.conf import settings
 from django.conf.urls.static import static
+#from tracker_survei.views import SurveyStatusView
 
 
 urlpatterns = [
@@ -33,8 +34,7 @@ urlpatterns = [
     path('api/profil/', profil_view, name="profil"),
     path('api/login/', login_view, name="login"),
     path('api/logout/', logout_view, name="logout"),
-    path('api/dashboard/', dashboard_view, name="dashboard"),
-    path('api/csrf/', get_csrf_token, name='get_csrf_token'),
+    path('csrf/', get_csrf_token, name='get_csrf_token'),
     path('api/password_reset/', auth_views.PasswordResetView.as_view(), name='password_reset'),
     path('api/password_reset/done/', auth_views.PasswordResetDoneView.as_view(), name='password_reset_done'),
     path('api/reset/<uidb64>/<token>/', auth_views.PasswordResetConfirmView.as_view(), name='password_reset_confirm'),
@@ -44,6 +44,8 @@ urlpatterns = [
     path('api/survei-status/', include('tracker_survei.urls')),
     path('api/dokumen_pendukung/', include('dokumen_pendukung.urls')),
     path('api/souvenir/', include('souvenir.urls')),
+    path('api/dashboard/', include('dashboard.urls')),
+    path('api/daftarDokumen/', include('daftarDokumen.urls')),
+
 
 ] + static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
-
