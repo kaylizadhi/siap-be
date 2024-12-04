@@ -56,14 +56,21 @@ def dokumen_list(request):
 @csrf_exempt
 def dokumen_delete(request, id):
     decoded_id = unquote(id)
-    if get_object_or_404(InvoiceDP, id=decoded_id):
-        dokumen = get_object_or_404(InvoiceDP, id=decoded_id)
-    elif get_object_or_404(InvoiceFinal, id=decoded_id):
-        dokumen = get_object_or_404(InvoiceFinal, id=decoded_id)
-    elif get_object_or_404(KwitansiDP, id=decoded_id):
-        dokumen = get_object_or_404(KwitansiDP, id=decoded_id)
-    elif get_object_or_404(KwitansiFinal, id=decoded_id):
-        dokumen = get_object_or_404(KwitansiFinal, id=decoded_id)
+    # Attempt to find the document in one of the models
+    dokumen = None
+    try:
+        dokumen = InvoiceDP.objects.get(id=decoded_id)
+    except InvoiceDP.DoesNotExist:
+        try:
+            dokumen = InvoiceFinal.objects.get(id=decoded_id)
+        except InvoiceFinal.DoesNotExist:
+            try:
+                dokumen = KwitansiDP.objects.get(id=decoded_id)
+            except KwitansiDP.DoesNotExist:
+                try:
+                    dokumen = KwitansiFinal.objects.get(id=decoded_id)
+                except KwitansiFinal.DoesNotExist:
+                    return JsonResponse({'error': 'Document not found'}, status=404)
 
     if request.method == 'DELETE':
         dokumen.is_deleted =True  # Mark as deleted
