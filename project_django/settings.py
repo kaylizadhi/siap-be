@@ -69,9 +69,9 @@ MIDDLEWARE = [
 
 CORS_ALLOW_CREDENTIALS = True
 
-CORS_ALLOWED_ORIGINS = [
-    "http://localhost:3000",  # Next.js frontend
-]
+# CORS_ALLOWED_ORIGINS = [
+#     "http://localhost:3000",  # Next.js frontend
+# ]
 
 CSRF_COOKIE_SECURE = False  # For development (in production, this should be True with HTTPS)
 CSRF_COOKIE_HTTPONLY = False
@@ -116,9 +116,9 @@ DATABASES = {
     }
 }
 
-DATABASES = {
-    "default": dj_database_url.config("DATABASE_PUBLIC_URL", conn_max_age=1800,)
-}
+# DATABASES = {
+#     "default": dj_database_url.config("DATABASE_PUBLIC_URL", conn_max_age=1800,)
+# }
 
 AUTH_USER_MODEL = 'accounts.User'
 
@@ -150,7 +150,7 @@ AUTHENTICATION_BACKENDS = [
 
 
 
-CSRF_TRUSTED_ORIGINS = ['http://localhost:3000']
+CSRF_TRUSTED_ORIGINS = ['http://localhost:3000', "https://siap-fe-production.up.railway.app",]
 
 # Internationalization
 # https://docs.djangoproject.com/en/4.1/topics/i18n/
