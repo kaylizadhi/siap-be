@@ -12,6 +12,8 @@ class InvoiceDP(models.Model):
     paid_percentage = models.DecimalField(max_digits=5, decimal_places=2)
     additional_info = models.TextField(blank=True, null=True)
     date = models.DateField()
+    doc_type = models.CharField(default="invoiceDP")
+    is_deleted = models.BooleanField(default=False)
 
     def __str__(self):
         return f"{self.client_name} - {self.survey_name}"
@@ -27,6 +29,8 @@ class InvoiceFinal(models.Model):
     paid_percentage = models.DecimalField(max_digits=5, decimal_places=2)
     additional_info = models.TextField(blank=True, null=True)
     date = models.DateField()
+    doc_type = models.CharField(default="invoiceFinal")
+    is_deleted = models.BooleanField(default=False)
 
     def __str__(self):
         return f"{self.client_name} - {self.survey_name}"
@@ -34,12 +38,16 @@ class InvoiceFinal(models.Model):
 class KwitansiDP(models.Model):
     # Primary key - varchar
     id = models.CharField(max_length=255, primary_key=True)  # Non-auto-generated unique ID
-    pembayar = models.CharField(max_length=255)
-    tujuan_pembayaran = models.CharField(max_length=500)
+    # pembayar = models.CharField(max_length=255)
+    # tujuan_pembayaran = models.CharField(max_length=500)
+    client_name = models.CharField(max_length=255)
+    survey_name = models.CharField(max_length=255)
     amount = models.DecimalField(max_digits=10, decimal_places=2)
     nominal_tertulis = models.TextField()
     additional_info = models.TextField(blank=True, null=True)
     date = models.DateField()
+    doc_type = models.CharField(default="kwitansiDP")
+    is_deleted = models.BooleanField(default=False)
 
     def __str__(self):
         return f"{self.pembayar} - {self.tujuan_pembayaran}"
@@ -47,12 +55,16 @@ class KwitansiDP(models.Model):
 class KwitansiFinal(models.Model):
     # Primary key - varchar
     id = models.CharField(max_length=255, primary_key=True)  # Non-auto-generated unique ID
-    pembayar = models.CharField(max_length=255)
-    tujuan_pembayaran = models.CharField(max_length=500)
+    # pembayar = models.CharField(max_length=255)
+    # tujuan_pembayaran = models.CharField(max_length=500)
+    client_name = models.CharField(max_length=255)
+    survey_name = models.CharField(max_length=255)
     amount = models.DecimalField(max_digits=10, decimal_places=2)
     nominal_tertulis = models.TextField()
     additional_info = models.TextField(blank=True, null=True)
     date = models.DateField()
+    doc_type = models.CharField(default="kwitansiFinal")
+    is_deleted = models.BooleanField(default=False)
 
     def __str__(self):
         return f"{self.pembayar} - {self.tujuan_pembayaran}"

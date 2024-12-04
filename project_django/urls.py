@@ -43,9 +43,10 @@ urlpatterns = [
     path('reset/done/', auth_views.PasswordResetCompleteView.as_view(), name='password_reset_complete'),
     path('api/survei/',include('survei.urls')),
     path('klien/', include('klien.urls')),
-    path('api/survei-status/', include('tracker_survei.urls')),
+    path('survei-status/', include('tracker_survei.urls')),
     path('dokumen_pendukung/', include('dokumen_pendukung.urls')),
     path('api/souvenir/', include('souvenir.urls')),
+    path('api/daftarDokumen/', include('daftarDokumen.urls')),
 
 ] + static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
 
