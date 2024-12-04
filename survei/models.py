@@ -8,22 +8,28 @@ class Survei(models.Model):
         ("Digital", "Digital"),
         ("Lainnya", "Lainnya"),
     }
-    
+    RUANG_LINGKUP = {
+        ("Nasional", "Nasional"),
+        ("Provinsi", "Provinsi"),
+        ("Kabupaten/Kota", "Kabupaten/Kota"),
+    }
+
     nama_survei = models.CharField(
-        default='', 
-        max_length=255, 
-        blank=False, 
-        null=False, 
+        default='',
+        max_length=255,
+        blank=False,
+        null=False,
         unique=True
     )
     waktu_mulai_survei = models.DateTimeField(
-        default=timezone.now, 
-        null=False, 
+        default=timezone.now,
+        null=False,
         blank=False
     )
+
     waktu_berakhir_survei = models.DateTimeField(
-        default=timezone.now, 
-        null=False, 
+        default=timezone.now,
+        null=False,
         blank=False
     )
     klien = models.ForeignKey(
@@ -32,20 +38,17 @@ class Survei(models.Model):
         related_name='survei_set'
     )
     harga_survei = models.FloatField(default=0, null=False, blank=False)
-    ruang_lingkup_survei = models.CharField(
-        default='', 
-        max_length=255, 
-        blank=False, 
-        null=False
+
+    ruang_lingkup = models.CharField(
+        max_length=255, choices=RUANG_LINGKUP, default='Nasional'
     )
-    wilayah_survei = models.JSONField(default=list)
+    wilayah_survei = models.CharField(default="", null=False, blank=False)
     jumlah_responden = models.IntegerField(default=0, null=False, blank=False)
     tipe_survei = models.CharField(
-        max_length=255, 
-        choices=SURVEI_CHOICE, 
+        max_length=255,
+        choices=SURVEI_CHOICE,
         default='Paper-based'
     )
-
     def __str__(self):
         return f"{self.nama_survei} - {self.klien.nama_perusahaan}"
 
