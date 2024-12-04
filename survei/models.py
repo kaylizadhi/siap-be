@@ -11,7 +11,7 @@ class Survei(models.Model):
     RUANG_LINGKUP = {
         ("Nasional", "Nasional"),
         ("Provinsi", "Provinsi"),
-        ("Kabupaten/Kota", "Kabupaten/Kota"),
+        ("Kota", "Kota"),
     }
 
     nama_survei = models.CharField(
