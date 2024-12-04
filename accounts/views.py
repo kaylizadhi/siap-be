@@ -248,3 +248,16 @@ def check_role_proposal(request):
     elif user.role == 'Eksekutif':
         return JsonResponse({'role': user.role})
     return JsonResponse({'error': 'Unauthorized'}, status=403)
+
+@api_view(['GET'])
+@login_required
+def check_role_dashboard(request):
+    user = request.user
+    print(user.role)
+    if user.role == 'Administrasi':  
+        return JsonResponse({'role': user.role})
+    elif user.role == 'Eksekutif':
+        return JsonResponse({'role': user.role})
+    elif user.role == 'Logistik':
+        return JsonResponse({'role': user.role})
+    return JsonResponse({'error': 'Unauthorized'}, status=403)
