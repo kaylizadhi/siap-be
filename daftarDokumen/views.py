@@ -55,7 +55,8 @@ def dokumen_list(request):
 # Endpoint delete di backend (soft delete)
 @csrf_exempt
 def dokumen_delete(request, id):
-    dokumen = get_object_or_404(InvoiceDP, id=id)
+    decoded_id = unquote(id)
+    dokumen = get_object_or_404(InvoiceDP, id=decoded_id)
     if request.method == 'DELETE':
         dokumen.is_deleted =True  # Mark as deleted
         dokumen.save()
