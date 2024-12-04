@@ -9,9 +9,9 @@ from rest_framework.views import APIView
 from rest_framework.response import Response
 
 class SurveiPagination(PageNumberPagination):
-    page_size = 10  # Jumlah item per halaman
-    page_size_query_param = 'page_size'  # Parameter untuk mengubah ukuran halaman
-    max_page_size = 100  # Ukuran maksimum halaman
+    page_size = 10
+    page_size_query_param = 'page_size'
+    max_page_size = 100  
 
 @api_view(['GET'])
 def get_list_survei(request):
@@ -37,7 +37,7 @@ def add_survei(request):
     if serializer.is_valid():
         serializer.save()
         return Response(serializer.data, status=status.HTTP_201_CREATED)
-    
+
     return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
 @api_view(['PATCH'])
@@ -51,7 +51,7 @@ def update_survei(request, id):
     if serializer.is_valid():
         serializer.save()
         return Response(serializer.data, status=status.HTTP_200_OK)
-    
+
     return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
 @api_view(['DELETE'])
@@ -63,3 +63,28 @@ def delete_survei(request, id):
 
     survei.delete()
     return Response(status=status.HTTP_204_NO_CONTENT)
+
+@api_view(['GET'])
+def get_location_data(request):
+    param = request.query_params.get('param', '').lower()
+
+    if param == 'provinsi':
+        data = [
+            {"id": "Jawa Barat", "name": "Jawa Barat"},
+            {"id": "Jawa Tengah", "name": "Jawa Tengah"},
+            {"id": "Jawa Timur", "name": "Jawa Timur"},
+        ]
+    elif param == 'kabupaten/kota':
+        data = [
+            {"id": "Bandung", "name": "Bandung"},
+            {"id": "Semarang", "name": "Semarang"},
+            {"id": "Surabaya", "name": "Surabaya"},
+        ]
+    elif param == 'nasional':
+        data = [
+            {"id":"Indonesia", 'name': 'Indonesia'}
+        ]
+    else:
+        return Response({"error": "Parameter tidak valid. Gunakan 'provinsi' atau 'kabupaten/kota'."}, status=400)
+
+    return Response(data)
