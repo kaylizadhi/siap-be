@@ -15,6 +15,8 @@ from django.contrib.auth import get_user_model
 from django.views.decorators.csrf import csrf_exempt
 from rest_framework.authtoken.models import Token
 from .decorators import admin_required, administrator_required
+from django.contrib.auth import logout
+
 # from .models import Profile
 
 User = get_user_model()
