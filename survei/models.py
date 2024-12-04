@@ -42,7 +42,7 @@ class Survei(models.Model):
     ruang_lingkup = models.CharField(
         max_length=255, choices=RUANG_LINGKUP, default='Nasional'
     )
-    wilayah_survei = models.JSONField(default=list)
+    wilayah_survei = models.CharField(default="", null=False, blank=False)
     jumlah_responden = models.IntegerField(default=0, null=False, blank=False)
     tipe_survei = models.CharField(
         max_length=255,
