@@ -147,6 +147,53 @@ def get_csrf_token(request):
 
 @api_view(['GET'])
 @login_required
+def get_sidebar_role(request):
+    user = request.user
+    role = user.role
+
+    menu_items = {
+        'Admin Sistem': {
+            'homepage': '/daftar-akun',
+            'menu': ['profil', 'daftar-akun', 'buat-akun']
+        },
+        'Pengendali Mutu': {
+            'homepage': '/tracker-survei',
+            'menu': ['profil', 'tracker-survei']
+        },
+        'Logistik': {
+            'homepage': '/dashboard',
+            'menu': ['dashboard', 'profil', 'tracker-survei', 'souvenir']
+        },
+        'Administrasi': {
+            'homepage': '/dashboard',
+            'menu': [
+                'dashboard',
+                'profil', 'list-klien', 
+                'survei', 'tracker-survei',
+                'generator-dokumen', 'daftar-dokumen'
+            ]
+        },
+        'Eksekutif': {
+            'homepage': '/dashboard',
+            'menu': [
+                'dashboard',
+                'profil', 'list-klien', 
+                'tracker-survei', 'survei', 'daftar-dokumen'
+            ]
+        }
+    }
+
+    if role in menu_items:
+        return JsonResponse({
+            'role': role,
+            'homepage': menu_items[role]['homepage'],
+            'menu': menu_items[role]['menu']
+        })
+    
+    return JsonResponse({'error': 'Invalid role'}, status=403)
+
+@api_view(['GET'])
+@login_required
 def check_role_eksekutif(request):
     user = request.user
     print(user.role)
@@ -171,6 +218,7 @@ def check_role_logistik(request):
     if user.role == 'Logistik':  
         return JsonResponse({'role': user.role})
     return JsonResponse({'error': 'Unauthorized'}, status=403)
+
 
 @api_view(['GET'])
 @login_required
