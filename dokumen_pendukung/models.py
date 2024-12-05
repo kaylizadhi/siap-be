@@ -12,7 +12,7 @@ class InvoiceDP(models.Model):
     paid_percentage = models.DecimalField(max_digits=5, decimal_places=2)
     additional_info = models.TextField(blank=True, null=True)
     date = models.DateField()
-    doc_type = models.CharField(default="invoiceDP")
+    doc_type = models.CharField(default="invoiceDP", max_length=255)
     is_deleted = models.BooleanField(default=False)
 
     def __str__(self):
@@ -29,7 +29,7 @@ class InvoiceFinal(models.Model):
     paid_percentage = models.DecimalField(max_digits=5, decimal_places=2)
     additional_info = models.TextField(blank=True, null=True)
     date = models.DateField()
-    doc_type = models.CharField(default="invoiceFinal")
+    doc_type = models.CharField(default="invoiceFinal", max_length=255)
     is_deleted = models.BooleanField(default=False)
 
     def __str__(self):
@@ -46,7 +46,7 @@ class KwitansiDP(models.Model):
     nominal_tertulis = models.TextField()
     additional_info = models.TextField(blank=True, null=True)
     date = models.DateField()
-    doc_type = models.CharField(default="kwitansiDP")
+    doc_type = models.CharField(default="kwitansiDP", max_length=255)
     is_deleted = models.BooleanField(default=False)
 
     def __str__(self):
@@ -63,7 +63,7 @@ class KwitansiFinal(models.Model):
     nominal_tertulis = models.TextField()
     additional_info = models.TextField(blank=True, null=True)
     date = models.DateField()
-    doc_type = models.CharField(default="kwitansiFinal")
+    doc_type = models.CharField(default="kwitansiFinal", max_length=255)
     is_deleted = models.BooleanField(default=False)
 
     def __str__(self):
