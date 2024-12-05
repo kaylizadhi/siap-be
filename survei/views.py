@@ -75,7 +75,7 @@ def get_location_data(request):
             {"id": "Jawa Tengah", "name": "Jawa Tengah"},
             {"id": "Jawa Timur", "name": "Jawa Timur"},
         ]
-    elif param == 'kabupaten/kota':
+    elif param == 'kota':
         data = [
             {"id": "Bandung", "name": "Bandung"},
             {"id": "Semarang", "name": "Semarang"},

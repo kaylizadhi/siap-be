@@ -255,11 +255,6 @@ def check_role_proposal(request):
 @login_required
 def check_role_dashboard(request):
     user = request.user
-    print(user.role)
-    if user.role == 'Administrasi':  
-        return JsonResponse({'role': user.role})
-    elif user.role == 'Eksekutif':
-        return JsonResponse({'role': user.role})
-    elif user.role == 'Logistik':
+    if user.role:
         return JsonResponse({'role': user.role})
     return JsonResponse({'error': 'Unauthorized'}, status=403)
