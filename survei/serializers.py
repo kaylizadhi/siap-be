@@ -38,5 +38,5 @@ class SurveiPost(serializers.ModelSerializer):
         )
 
     def get_nama_klien(self, obj):
-        """Return `nama_perusahaan` from the related `DataKlien` model as `nama_klien`."""
+        """Return nama_perusahaan from the related DataKlien model as `nama_klien`."""
         return obj.klien.nama_perusahaan if obj.klien else None

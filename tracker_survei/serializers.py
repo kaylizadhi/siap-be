@@ -8,7 +8,7 @@ class TrackerSurveiSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = TrackerSurvei
-        fields = ['id', 'nama_survei', 'nama_klien', 'status']
+        fields = ['id', 'nama_survei', 'nama_klien', 'status','last_status']
 
     def get_status(self, obj):
         status_fields = [
@@ -28,7 +28,7 @@ class TrackerGet(serializers.ModelSerializer):
     status = serializers.SerializerMethodField()
     class Meta:
         model = TrackerSurvei
-        fields = ("id","survei","status")
+        fields = ("id","survei","status", "last_status")
     def get_status(self, obj):
         status_fields = [
             # Administrasi Awal

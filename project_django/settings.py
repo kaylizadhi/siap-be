@@ -51,6 +51,7 @@ INSTALLED_APPS = [
     'daftarAkun',
     'dokumen_pendukung',
     'souvenir',
+    'dashboard',
 ]
 
 MIDDLEWARE = [
@@ -113,6 +114,7 @@ DATABASES = {
         'PORT': '5432',
     }
 }
+
 
 AUTH_USER_MODEL = 'accounts.User'
 
