@@ -2,6 +2,7 @@ from django.db import models
 from django.utils import timezone
 from klien.models import DataKlien
 
+#test
 class Survei(models.Model):
     SURVEI_CHOICE = {
         ("Paper-based", "Paper-based"),
@@ -59,3 +60,4 @@ class Survei(models.Model):
 
     class Meta:
         db_table = 'survei'
+    
