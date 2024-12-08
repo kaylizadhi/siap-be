@@ -27,7 +27,7 @@ urlpatterns = [
     path('buatAkun/', include('buatAkun.urls')),
     path('daftarAkun/', include('daftarAkun.urls')),
     path('', include('example_app.urls')),
-    path('accounts/', include('accounts.urls')),
+    path('api/accounts/', include('accounts.urls')),
     path('api/', include('accounts.urls')),
     path('api/get-security-question/', get_security_question, name='get_security_question'),
     path('api/verify-security-answer/', verify_security_answer, name='verify_security_answer'),

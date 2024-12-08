@@ -10,4 +10,5 @@ urlpatterns=[
     path("delete-survei/<str:id>/",delete_survei),
     #path('lokasi', get_location_data),
     path('count-by-region/', get_survei_count_by_region),
+    path('count-dashboard/', get_survei_count_dashboard),
 ]
