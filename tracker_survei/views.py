@@ -6,7 +6,12 @@ from django.shortcuts import get_object_or_404
 from django.core.exceptions import ValidationError
 from .models import TrackerSurvei
 from .serializers import TrackerSurveiSerializer, TrackerGet
+from .serializers import TrackerSurveiSerializer, TrackerGet
 import logging
+from survei.models import Survei
+from survei.serializers import SurveiGet, SurveiPost
+from django.core.paginator import Paginator
+from django.db.models import Q
 from survei.models import Survei
 from survei.serializers import SurveiGet, SurveiPost
 from django.core.paginator import Paginator
@@ -27,10 +32,14 @@ def validate_role_fields(user_role, data):
     """Validate that the user can only modify fields within their role."""
     role_field_mapping = {
         'Administrasi': {
+            # Administrasi Awal fields
             'buat_kontrak', 'buat_invoice_dp', 
             'pembayaran_dp', 'pembuatan_kwitansi_dp',
-            'buat_invoice_final', 'pembayaran_lunas', 
-            'pembuatan_kwitansi_final'
+            
+            # Administrasi Akhir fields
+            'buat_invoice_final', 'pembuatan_laporan', 
+            'pembayaran_lunas', 'pembuatan_kwitansi_final', 
+            'penyerahan_laporan'
         },
         'Pengendali Mutu': {
             'terima_info_survei', 'lakukan_survei', 
@@ -117,9 +126,11 @@ def handle_tracker_update(request, survei_id, allowed_roles):
 
 @api_view(['GET'])
 # @permission_classes([IsAuthenticated])
+# @permission_classes([IsAuthenticated])
 def get_tracker_detail(request, survei_id):
     try:
-        tracker = get_object_or_404(TrackerSurvei, survei_id=survei_id)
+        survei = get_object_or_404(Survei, id=survei_id)
+        tracker, created = TrackerSurvei.objects.get_or_create(survei=survei)
         serializer = TrackerSurveiSerializer(tracker)
         return Response(serializer.data)
     except Exception as e:

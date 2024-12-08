@@ -38,8 +38,10 @@ class TrackerSurvei(models.Model):
     # Administrasi Akhir
     buat_invoice_final = models.CharField(max_length=20, choices=STATUS_CHOICES, default='NOT_STARTED')
     pembuatan_laporan = models.CharField(max_length=20, choices=STATUS_CHOICES, default='NOT_STARTED')
+    pembuatan_laporan = models.CharField(max_length=20, choices=STATUS_CHOICES, default='NOT_STARTED')
     pembayaran_lunas = models.CharField(max_length=20, choices=STATUS_CHOICES, default='NOT_STARTED')
     pembuatan_kwitansi_final = models.CharField(max_length=20, choices=STATUS_CHOICES, default='NOT_STARTED')
+    penyerahan_laporan = models.CharField(max_length=20, choices=STATUS_CHOICES, default='NOT_STARTED')
     penyerahan_laporan = models.CharField(max_length=20, choices=STATUS_CHOICES, default='NOT_STARTED')
 
     created_at = models.DateTimeField(auto_now_add=True)
@@ -78,19 +80,27 @@ class TrackerSurvei(models.Model):
             ]
         ]
 
-        self.last_status = None
+        # Default first status to Buat Kontrak: Not Started
+        self.last_status = 'Buat Kontrak: Not Started'
 
         for stage in stages:
             for i, (field, description) in enumerate(stage):
                 current_status = getattr(self, field)
-
-                if i == 0 or getattr(self, stage[i-1][0]) == 'FINISHED':
-                    if current_status in ['IN_PROGRESS', 'DELAYED', 'FINISHED']:
+                
+                # If current field is NOT_STARTED/DELAYED and previous field is FINISHED
+                if i > 0:
+                    prev_field, prev_description = stage[i-1]
+                    prev_status = getattr(self, prev_field)
+                    
+                    if prev_status == 'FINISHED':
+                        # Update last_status to the next field's current status
                         self.last_status = f"{description}: {dict(self.STATUS_CHOICES)[current_status]}"
-                    elif current_status == 'NOT_STARTED':
-                        if self.last_status is None:
-                            self.last_status = f"{description}: Not Started"
                         return
+                
+                # If current field is DELAYED/IN_PROGRESS, update last_status
+                if current_status in ['DELAYED', 'IN_PROGRESS']:
+                    self.last_status = f"{description}: {dict(self.STATUS_CHOICES)[current_status]}"
+                    return
 
     class Meta:
         db_table = 'tracker_survei'
@@ -124,7 +134,10 @@ class TrackerSurvei(models.Model):
         admin_akhir_fields = [
             self.buat_invoice_final,
             self.pembuatan_laporan,
+            self.pembuatan_laporan,
             self.pembayaran_lunas,
+            self.pembuatan_kwitansi_final,
+            self.penyerahan_laporan,
             self.pembuatan_kwitansi_final,
             self.penyerahan_laporan
         ]
@@ -169,14 +182,19 @@ class TrackerSurvei(models.Model):
         # Validate Administrasi Akhir internal sequence
         if self.buat_invoice_final != 'NOT_STARTED' and self.pembuatan_laporan != 'FINISHED':
             raise ValidationError('Pembuatan Laporan harus selesai sebelum Buat Invoice Final dapat dimulai')
+        if self.buat_invoice_final != 'NOT_STARTED' and self.pembuatan_laporan != 'FINISHED':
+            raise ValidationError('Pembuatan Laporan harus selesai sebelum Buat Invoice Final dapat dimulai')
         if self.pembayaran_lunas != 'NOT_STARTED' and self.buat_invoice_final != 'FINISHED':
             raise ValidationError('Buat Invoice Final harus selesai sebelum Pembayaran Lunas dapat dilakukan')
         if self.pembuatan_kwitansi_final != 'NOT_STARTED' and self.pembayaran_lunas != 'FINISHED':
             raise ValidationError('Pembayaran Lunas harus selesai sebelum Pembuatan Kwitansi Final dapat dibuat')
         if self.penyerahan_laporan != 'NOT_STARTED' and self.pembuatan_kwitansi_final != 'FINISHED':
             raise ValidationError('Pembuatan Kwitansi Final harus selesai sebelum Penyerahan Laporan dapat dilakukan')
+        if self.penyerahan_laporan != 'NOT_STARTED' and self.pembuatan_kwitansi_final != 'FINISHED':
+            raise ValidationError('Pembuatan Kwitansi Final harus selesai sebelum Penyerahan Laporan dapat dilakukan')
 
     def save(self, *args, **kwargs):
+        self.update_last_status()
         self.update_last_status()
         self.full_clean()
         super().save(*args, **kwargs)
