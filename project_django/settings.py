@@ -166,27 +166,23 @@ print("PGPORT:", config('PGPORT', default=None))
 #         }
 #     }
 
-# PGDATABASE=railway
-# PGHOST=postgres-tctf.railway.internal
-# PGPASSWORD=bnUJJUGzVHqiaWIRZrQlguAzAnbJLSNI
-# PGPORT=5432
-# PGUSER=postgres
+DATABASE_PUBLIC_URL = config("DATABASE_PUBLIC_URL", default=None)
 
 DATABASES = {
         'default': {
             'ENGINE': 'django.db.backends.postgresql',
-            'NAME': 'railway',
-            'USER': 'postgres',
-            'PASSWORD': 'bnUJJUGzVHqiaWIRZrQlguAzAnbJLSNI',
-            'HOST': 'postgres-tctf.railway.internal',
-            'PORT': '5432',
+            'NAME': config('PGDATABASE'),
+            'USER': config('PGUSER'),
+            'PASSWORD': config('PGPASSWORD'),
+            'HOST': config('PGHOST'),
+            'PORT': config('PGPORT'),
             'OPTIONS': {
                 'sslmode': 'require',  # Use SSL if needed (usually the case with Railway)
             }
         }
     }
 
-DATABASE_PUBLIC_URL = 'postgresql://postgres:bnUJJUGzVHqiaWIRZrQlguAzAnbJLSNI@junction.proxy.rlwy.net:48338/railway'
+# DATABASE_PUBLIC_URL = config("DATABASE_PUBLIC_URL", default=None)
 # DATABASES = {
 #         "default": dj_database_url.config(default=DATABASE_PUBLIC_URL, conn_max_age=1800)
 #     }
