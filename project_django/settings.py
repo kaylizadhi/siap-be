@@ -145,14 +145,28 @@ print("PGPASSWORD:", config('PGPASSWORD', default=None))
 print("PGHOST:", config('PGHOST', default=None))
 print("PGPORT:", config('PGPORT', default=None))
 
-# Database configuration using python-decouple
-DATABASE_PUBLIC_URL = config("DATABASE_PUBLIC_URL", default=None)
-if DATABASE_PUBLIC_URL:
-    DATABASES = {
-        "default": dj_database_url.config(default=DATABASE_PUBLIC_URL, conn_max_age=1800)
-    }
-else:
-    DATABASES = {
+# # Database configuration using python-decouple
+# DATABASE_PUBLIC_URL = config("DATABASE_PUBLIC_URL", default=None)
+# if DATABASE_PUBLIC_URL:
+#     DATABASES = {
+#         "default": dj_database_url.config(default=DATABASE_PUBLIC_URL, conn_max_age=1800)
+#     }
+# else:
+#     DATABASES = {
+#         'default': {
+#             'ENGINE': 'django.db.backends.postgresql',
+#             'NAME': config('PGDATABASE'),
+#             'USER': config('PGUSER'),
+#             'PASSWORD': config('PGPASSWORD'),
+#             'HOST': config('PGHOST'),
+#             'PORT': config('PGPORT'),
+#             'OPTIONS': {
+#                 'sslmode': 'require',  # Use SSL if needed (usually the case with Railway)
+#             }
+#         }
+#     }
+
+DATABASES = {
         'default': {
             'ENGINE': 'django.db.backends.postgresql',
             'NAME': config('PGDATABASE'),
@@ -164,6 +178,10 @@ else:
                 'sslmode': 'require',  # Use SSL if needed (usually the case with Railway)
             }
         }
+    }
+
+DATABASES = {
+        "default": dj_database_url.config(default=DATABASE_PUBLIC_URL, conn_max_age=1800)
     }
 
 AUTH_USER_MODEL = 'accounts.User'
