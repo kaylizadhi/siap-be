@@ -180,9 +180,9 @@ DATABASES = {
         }
     }
 
-DATABASES = {
-        "default": dj_database_url.config(default=DATABASE_PUBLIC_URL, conn_max_age=1800)
-    }
+# DATABASES = {
+#         "default": dj_database_url.config(default=DATABASE_PUBLIC_URL, conn_max_age=1800)
+#     }
 
 AUTH_USER_MODEL = 'accounts.User'
 
