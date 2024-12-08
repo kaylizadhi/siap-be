@@ -178,7 +178,7 @@ def get_list_survei(request):
     if search_query:
         survei = survei.filter(
             Q(nama_survei__icontains=search_query) |
-            Q(nama_klien__icontains=search_query)
+            Q(klien__nama_perusahaan__icontains=search_query) 
         )
     
     # Order by nama_survei
