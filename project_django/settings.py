@@ -172,14 +172,14 @@ DATABASES = {
         'NAME': "railway",  # Nama default jika tidak ada DATABASE_URL
         'USER': "postgres",  # Username default
         'PASSWORD': "EsidDVfmLniGRXKVlCFwtoYJvzqiMkPa",  # Password default (ganti dengan password aktual jika diperlukan)
-        'HOST': "junction.proxy.rlwy.net",  # Default host
+        'HOST': "postgres.railway.internal",  # Default host
         'PORT': '5432',  # Default port
     }
 }
 
 if PRODUCTION:
     DATABASES['default'] = dj_database_url.config(
-        default="postgresql://postgres:EsidDVfmLniGRXKVlCFwtoYJvzqiMkPa@junction.proxy.rlwy.net:13105/railway",
+        default="postgresql://postgres:EsidDVfmLniGRXKVlCFwtoYJvzqiMkPa@postgres.railway.internal:5432/railway",
         conn_max_age=600,
         ssl_require=True
     )
