@@ -80,27 +80,33 @@ class TrackerSurvei(models.Model):
             ]
         ]
 
-        # Default first status to Buat Kontrak: Not Started
-        self.last_status = 'Buat Kontrak: Not Started'
-
+        # Iterate through all stages
         for stage in stages:
             for i, (field, description) in enumerate(stage):
                 current_status = getattr(self, field)
                 
-                # If current field is NOT_STARTED/DELAYED and previous field is FINISHED
-                if i > 0:
-                    prev_field, prev_description = stage[i-1]
-                    prev_status = getattr(self, prev_field)
-                    
-                    if prev_status == 'FINISHED':
-                        # Update last_status to the next field's current status
-                        self.last_status = f"{description}: {dict(self.STATUS_CHOICES)[current_status]}"
+                # If current field is not started and previous field is finished
+                if current_status == 'NOT_STARTED':
+                    if i == 0 or getattr(self, stage[i-1][0]) == 'FINISHED':
+                        self.last_status = f"{description}: Not Started"
                         return
                 
-                # If current field is DELAYED/IN_PROGRESS, update last_status
-                if current_status in ['DELAYED', 'IN_PROGRESS']:
-                    self.last_status = f"{description}: {dict(self.STATUS_CHOICES)[current_status]}"
+                # If current field is in progress
+                elif current_status == 'IN_PROGRESS':
+                    self.last_status = f"{description}: In Progress"
                     return
+                
+                # If current field is delayed
+                elif current_status == 'DELAYED':
+                    self.last_status = f"{description}: Delayed"
+                    return
+                
+                # If current field is finished and it's the last field in the stage
+                elif current_status == 'FINISHED' and i == len(stage) - 1:
+                    continue
+
+        # If no specific status is found, default to the first stage
+        self.last_status = 'Buat Kontrak: Not Started'
 
     class Meta:
         db_table = 'tracker_survei'

@@ -1,8 +1,9 @@
 from django.db import models
 
+from django.db import models
+
 class InvoiceDP(models.Model):
-    # Primary key - varchar
-    id = models.CharField(max_length=255, primary_key=True)  # Non-auto-generated unique ID
+    id = models.CharField(max_length=255, primary_key=True)
     client_name = models.CharField(max_length=255)
     survey_name = models.CharField(max_length=255)
     respondent_count = models.IntegerField()
@@ -12,7 +13,7 @@ class InvoiceDP(models.Model):
     paid_percentage = models.DecimalField(max_digits=5, decimal_places=2)
     additional_info = models.TextField(blank=True, null=True)
     date = models.DateField()
-    doc_type = models.CharField(default="invoiceDP")
+    doc_type = models.CharField(max_length=50, default="invoiceDP")  # Added max_length
     is_deleted = models.BooleanField(default=False)
 
     def __str__(self):
@@ -29,42 +30,36 @@ class InvoiceFinal(models.Model):
     paid_percentage = models.DecimalField(max_digits=5, decimal_places=2)
     additional_info = models.TextField(blank=True, null=True)
     date = models.DateField()
-    doc_type = models.CharField(default="invoiceFinal")
+    doc_type = models.CharField(max_length=50, default="invoiceFinal")  # Added max_length
     is_deleted = models.BooleanField(default=False)
 
     def __str__(self):
         return f"{self.client_name} - {self.survey_name}"
 
 class KwitansiDP(models.Model):
-    # Primary key - varchar
-    id = models.CharField(max_length=255, primary_key=True)  # Non-auto-generated unique ID
-    # pembayar = models.CharField(max_length=255)
-    # tujuan_pembayaran = models.CharField(max_length=500)
+    id = models.CharField(max_length=255, primary_key=True)
     client_name = models.CharField(max_length=255)
     survey_name = models.CharField(max_length=255)
     amount = models.DecimalField(max_digits=10, decimal_places=2)
     nominal_tertulis = models.TextField()
     additional_info = models.TextField(blank=True, null=True)
     date = models.DateField()
-    doc_type = models.CharField(default="kwitansiDP")
+    doc_type = models.CharField(max_length=50, default="kwitansiDP")  # Added max_length
     is_deleted = models.BooleanField(default=False)
 
     def __str__(self):
-        return f"{self.pembayar} - {self.tujuan_pembayaran}"
+        return f"{self.client_name} - {self.survey_name}"
 
 class KwitansiFinal(models.Model):
-    # Primary key - varchar
-    id = models.CharField(max_length=255, primary_key=True)  # Non-auto-generated unique ID
-    # pembayar = models.CharField(max_length=255)
-    # tujuan_pembayaran = models.CharField(max_length=500)
+    id = models.CharField(max_length=255, primary_key=True)
     client_name = models.CharField(max_length=255)
     survey_name = models.CharField(max_length=255)
     amount = models.DecimalField(max_digits=10, decimal_places=2)
     nominal_tertulis = models.TextField()
     additional_info = models.TextField(blank=True, null=True)
     date = models.DateField()
-    doc_type = models.CharField(default="kwitansiFinal")
+    doc_type = models.CharField(max_length=50, default="kwitansiFinal")  # Added max_length
     is_deleted = models.BooleanField(default=False)
 
     def __str__(self):
-        return f"{self.pembayar} - {self.tujuan_pembayaran}"
+        return f"{self.client_name} - {self.survey_name}"
