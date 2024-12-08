@@ -160,6 +160,9 @@ else:
             'PASSWORD': config('PGPASSWORD'),
             'HOST': config('PGHOST'),
             'PORT': config('PGPORT'),
+            'OPTIONS': {
+                'sslmode': 'require',  # Use SSL if needed (usually the case with Railway)
+            }
         }
     }
 
