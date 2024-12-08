@@ -166,16 +166,17 @@ print("PGPORT:", config('PGPORT', default=None))
 #         }
 #     }
 
-DATABASE_PUBLIC_URL = config("DATABASE_PUBLIC_URL", default=None)
+DATABASE_PUBLIC_URL = os.environ.get("DATABASE_PUBLIC_URL", default=None)
+db_config = dj_database_url.parse(DATABASE_PUBLIC_URL)
 
 DATABASES = {
         'default': {
             'ENGINE': 'django.db.backends.postgresql',
-            'NAME': config('PGDATABASE'),
-            'USER': config('PGUSER'),
-            'PASSWORD': config('PGPASSWORD'),
-            'HOST': config('PGHOST'),
-            'PORT': config('PGPORT'),
+            'NAME': db_config('PGDATABASE'),
+            'USER': db_config('PGUSER'),
+            'PASSWORD': db_config('PGPASSWORD'),
+            'HOST': db_config('PGHOST'),
+            'PORT': db_config('PGPORT'),
             'OPTIONS': {
                 'sslmode': 'require',  # Use SSL if needed (usually the case with Railway)
             }
