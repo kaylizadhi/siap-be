@@ -166,7 +166,7 @@ print("PGPORT:", config('PGPORT', default=None))
 #         }
 #     }
 
-DATABASE_PUBLIC_URL = config("DATABASE_PUBLIC_URL", default=None)
+# DATABASE_PUBLIC_URL = config("DATABASE_PUBLIC_URL", default=None)
 DATABASE_URL = config("DATABASE_URL", default=None)
 DATABASES = {
     'default': dj_database_url.config(
