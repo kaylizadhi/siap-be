@@ -166,26 +166,44 @@ WSGI_APPLICATION = 'project_django.wsgi.application'
 #         }
 #     }
 
-DATABASE_PUBLIC_URL = os.getenv("DATABASE_PUBLIC_URL", default=None)
-# db_config = dj_database_url.parse(DATABASE_PUBLIC_URL)
 DATABASES = {
-        'default': {
-            'ENGINE': 'django.db.backends.postgresql',
-            'NAME': os.getenv('PGDATABASE'),
-            'USER': os.getenv('PGUSER'),
-            'PASSWORD': os.getenv('PGPASSWORD'),
-            'HOST': os.getenv('PGHOST'),
-            'PORT': os.getenv('PGPORT'),
-            # 'OPTIONS': {
-            #     'sslmode': 'require',  # Use SSL if needed (usually the case with Railway)
-            # }
-        }
+    'default': {
+        'ENGINE': 'django.db.backends.postgresql',
+        'NAME': "railway",  # Nama default jika tidak ada DATABASE_URL
+        'USER': "postgres",  # Username default
+        'PASSWORD': "EsidDVfmLniGRXKVlCFwtoYJvzqiMkPa",  # Password default (ganti dengan password aktual jika diperlukan)
+        'HOST': "junction.proxy.rlwy.net",  # Default host
+        'PORT': '5432',  # Default port
     }
+}
 
 if PRODUCTION:
     DATABASES['default'] = dj_database_url.config(
-        conn_max_age=600, ssl_require=True
+        default="postgresql://postgres:EsidDVfmLniGRXKVlCFwtoYJvzqiMkPa@junction.proxy.rlwy.net:13105/railway",
+        conn_max_age=600,
+        ssl_require=True
     )
+
+# DATABASE_PUBLIC_URL = os.getenv("DATABASE_PUBLIC_URL", default=None)
+# db_config = dj_database_url.parse(DATABASE_PUBLIC_URL)
+# DATABASES = {
+#         'default': {
+#             'ENGINE': 'django.db.backends.postgresql',
+#             'NAME': os.getenv('PGDATABASE'),
+#             'USER': os.getenv('PGUSER'),
+#             'PASSWORD': os.getenv('PGPASSWORD'),
+#             'HOST': os.getenv('PGHOST'),
+#             'PORT': os.getenv('PGPORT'),
+#             # 'OPTIONS': {
+#             #     'sslmode': 'require',  # Use SSL if needed (usually the case with Railway)
+#             # }
+#         }
+#     }
+
+# if PRODUCTION:
+#     DATABASES['default'] = dj_database_url.config(
+#         conn_max_age=600, ssl_require=True
+#     )
 
 # DATABASE_PUBLIC_URL = config("DATABASE_PUBLIC_URL", default=None)
 # DATABASES = {
