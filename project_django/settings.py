@@ -166,17 +166,16 @@ WSGI_APPLICATION = 'project_django.wsgi.application'
 #         }
 #     }
 
-DATABASE_PUBLIC_URL = os.environ.get("DATABASE_PUBLIC_URL", default=None)
+DATABASE_PUBLIC_URL = os.getenv("DATABASE_PUBLIC_URL", default=None)
 # db_config = dj_database_url.parse(DATABASE_PUBLIC_URL)
-print("password", os.environ.get('PGPASSWORD'))
 DATABASES = {
         'default': {
             'ENGINE': 'django.db.backends.postgresql',
-            'NAME': os.environ.get('PGDATABASE'),
-            'USER': os.environ.get('PGUSER'),
-            'PASSWORD': os.environ.get('PGPASSWORD'),
-            'HOST': os.environ.get('PGHOST'),
-            'PORT': os.environ.get('PGPORT'),
+            'NAME': os.getenv('PGDATABASE'),
+            'USER': os.getenv('PGUSER'),
+            'PASSWORD': os.getenv('PGPASSWORD'),
+            'HOST': os.getenv('PGHOST'),
+            'PORT': os.getenv('PGPORT'),
             # 'OPTIONS': {
             #     'sslmode': 'require',  # Use SSL if needed (usually the case with Railway)
             # }
