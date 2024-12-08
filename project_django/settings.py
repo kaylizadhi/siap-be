@@ -102,96 +102,26 @@ TEMPLATES = [
 
 WSGI_APPLICATION = 'project_django.wsgi.application'
 
+PRODUCTION = "postgresql://postgres:EsidDVfmLniGRXKVlCFwtoYJvzqiMkPa@junction.proxy.rlwy.net:13105/railway"
 
-# Database
-# https://docs.djangoproject.com/en/4.1/ref/settings/#databases
-
-# DATABASES = {
-#     'default': {
-#         'ENGINE': 'django.db.backends.postgresql',
-#         'NAME': os.getenv('PGDATABASE'),  # Use PGDATABASE for the database name
-#         'USER': os.getenv('PGUSER'),  # PGUSER is typically used for the username
-#         'PASSWORD': os.getenv('PGPASSWORD'),  # Use PGPASSWORD for the password
-#         'HOST': os.getenv('PGHOST'),  # Use PGHOST for the host
-#         'PORT': os.getenv('PGPORT'),  # Use PGPORT for the port
-#     }
-# }
-
-# DATABASES = {
-#     "default": dj_database_url.config("DATABASE_PUBLIC_URL", conn_max_age=1800,)
-# }
-
-# DATABASE_PUBLIC_URL = os.getenv("DATABASE_PUBLIC_URL")
-# if DATABASE_PUBLIC_URL:
-#     DATABASES = {
-#         "default": dj_database_url.config(default=DATABASE_PUBLIC_URL, conn_max_age=1800)
-#     }
-# else:
-#     DATABASES = {
-#         'default': {
-#             'ENGINE': 'django.db.backends.postgresql',
-#             'NAME': os.getenv('PGDATABASE'),
-#             'USER': os.getenv('PGUSER'),
-#             'PASSWORD': os.getenv('PGPASSWORD'),
-#             'HOST': os.getenv('PGHOST'),
-#             'PORT': os.getenv('PGPORT'),
-#         }
-#     }
-
-# print("DATABASE_PUBLIC_URL:", config('DATABASE_PUBLIC_URL', default=None))
-# print("PGDATABASE:", config('PGDATABASE', default=None))
-# print("PGUSER:", config('PGUSER', default=None))
-# print("PGPASSWORD:", config('PGPASSWORD', default=None))
-# print("PGHOST:", config('PGHOST', default=None))
-# print("PGPORT:", config('PGPORT', default=None))
-
-# # Database configuration using python-decouple
-# DATABASE_PUBLIC_URL = config("DATABASE_PUBLIC_URL", default=None)
-# if DATABASE_PUBLIC_URL:
-#     DATABASES = {
-#         "default": dj_database_url.config(default=DATABASE_PUBLIC_URL, conn_max_age=1800)
-#     }
-# else:
-#     DATABASES = {
-#         'default': {
-#             'ENGINE': 'django.db.backends.postgresql',
-#             'NAME': config('PGDATABASE'),
-#             'USER': config('PGUSER'),
-#             'PASSWORD': config('PGPASSWORD'),
-#             'HOST': config('PGHOST'),
-#             'PORT': config('PGPORT'),
-#             'OPTIONS': {
-#                 'sslmode': 'require',  # Use SSL if needed (usually the case with Railway)
-#             }
-#         }
-#     }
-
-DATABASE_PUBLIC_URL = os.environ.get("DATABASE_PUBLIC_URL", default=None)
-# db_config = dj_database_url.parse(DATABASE_PUBLIC_URL)
-print("password", os.environ.get('PGPASSWORD'))
 DATABASES = {
-        'default': {
-            'ENGINE': 'django.db.backends.postgresql',
-            'NAME': os.environ.get('PGDATABASE'),
-            'USER': os.environ.get('PGUSER'),
-            'PASSWORD': os.environ.get('PGPASSWORD'),
-            'HOST': os.environ.get('PGHOST'),
-            'PORT': os.environ.get('PGPORT'),
-            # 'OPTIONS': {
-            #     'sslmode': 'require',  # Use SSL if needed (usually the case with Railway)
-            # }
-        }
+    'default': {
+        'ENGINE': 'django.db.backends.postgresql',
+        'NAME': "railway",  # Nama default jika tidak ada DATABASE_URL
+        'USER': "postgres",  # Username default
+        'PASSWORD': "EsidDVfmLniGRXKVlCFwtoYJvzqiMkPa",  # Password default (ganti dengan password aktual jika diperlukan)
+        'HOST': "postgres.railway.internal",  # Default host
+        'PORT': '5432',  # Default port
     }
+}
 
 if PRODUCTION:
     DATABASES['default'] = dj_database_url.config(
-        conn_max_age=600, ssl_require=True
+        default="postgresql://postgres:EsidDVfmLniGRXKVlCFwtoYJvzqiMkPa@junction.proxy.rlwy.net:13105/railway",
+        conn_max_age=600,
+        ssl_require=True
     )
 
-# DATABASE_PUBLIC_URL = config("DATABASE_PUBLIC_URL", default=None)
-# DATABASES = {
-#         "default": dj_database_url.config(default=DATABASE_PUBLIC_URL, conn_max_age=1800)
-#     }
 
 AUTH_USER_MODEL = 'accounts.User'
 
@@ -230,7 +160,7 @@ CSRF_TRUSTED_ORIGINS = ['http://localhost:3000', "https://siap-fe-production.up.
 
 LANGUAGE_CODE = 'en-us'
 
-TIME_ZONE = 'UTC'
+TIME_ZONE = 'Asia/Jakarta'
 
 USE_I18N = True
 
