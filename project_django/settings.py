@@ -172,7 +172,7 @@ DATABASES = {
             'NAME': config('PGDATABASE'),
             'USER': config('PGUSER'),
             'PASSWORD': config('PGPASSWORD'),
-            'HOST': 'postgres-tctf.railway.internal',
+            'HOST': config('PGHOST'),
             'PORT': config('PGPORT'),
             'OPTIONS': {
                 'sslmode': 'require',  # Use SSL if needed (usually the case with Railway)
