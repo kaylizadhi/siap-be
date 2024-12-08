@@ -18,6 +18,7 @@ sqlparse==0.4.2
 urllib3==1.26.11
 whitenoise==6.2.0
 wrapt==1.12.1
+python-decouple
 
 typing_extensions==4.12.2
 tzdata==2024.2
