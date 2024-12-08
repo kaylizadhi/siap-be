@@ -28,7 +28,7 @@ PRODUCTION = os.getenv('DATABASE_PUBLIC_URL') is not None
 SECRET_KEY = 'django-insecure-3@5wx%(^*zl68l(o$^m-3%cvjv0g&mom1ra=oj5f048_al57s7'
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = True
+DEBUG = not PRODUCTION
 
 ALLOWED_HOSTS = ['localhost', '127.0.0.1', 'siap-be-production.up.railway.app']
 
@@ -189,6 +189,15 @@ DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 CORS_ALLOWED_ORIGINS = [
     "http://localhost:3000",  # Frontend URL
     "https://siap-fe-production.up.railway.app"
+]
+
+CORS_ALLOW_METHODS = [
+    "DELETE",
+    "GET",
+    "OPTIONS",
+    "PATCH",
+    "POST",
+    "PUT",
 ]
 
 REST_FRAMEWORK = {
