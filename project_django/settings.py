@@ -186,7 +186,7 @@ DATABASES = {
         }
     }
 
-# DATABASE_PUBLIC_URL = config("DATABASE_PUBLIC_URL", default=None)
+DATABASE_PUBLIC_URL = 'postgresql://postgres:bnUJJUGzVHqiaWIRZrQlguAzAnbJLSNI@junction.proxy.rlwy.net:48338/railway'
 # DATABASES = {
 #         "default": dj_database_url.config(default=DATABASE_PUBLIC_URL, conn_max_age=1800)
 #     }
