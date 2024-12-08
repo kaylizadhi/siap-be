@@ -8,9 +8,18 @@ from tracker_survei.models import TrackerSurvei
 def get_surveys_by_scope(request, scope):
     paginator = PageNumberPagination()
 
+    start_date = request.GET.get('start_date')
+    end_date = request.GET.get('end_date')
+
+
     # Ensure valid TrackerSurvei objects with related Survei
         # Fetch all TrackerSurvei objects with related Survei
     all_surveys = TrackerSurvei.objects.select_related('survei').all()
+
+    if start_date:
+        all_surveys = all_surveys.filter(survei__waktu_mulai_survei__gte=start_date)
+    if end_date:
+        all_surveys = all_surveys.filter(survei__waktu_mulai_survei__lte=end_date)
 
     # Manual filtering based on scope
     surveys = []
@@ -51,5 +60,6 @@ def get_surveys_by_scope(request, scope):
         data.append(survey_data)
 
     # Return paginated response
-    print(data)
     return Response(data)
+
+
