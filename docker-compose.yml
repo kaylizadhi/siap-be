@@ -1,11 +1,27 @@
 version: '3.8'
 
+# services:
+#   web:
+#     build: .
+#     command: python manage.py runserver 0.0.0.0:8000
+#     volumes:
+#       - .:/app
+#     ports:
+#       - "8000:8000"
+#     env_file:
+#       - .env
+#     depends_on:
+#       - db
+#     environment:
+#       DATABASE_PUBLIC_URL: postgresql://postgres:bnUJJUGzVHqiaWIRZrQlguAzAnbJLSNI@junction.proxy.rlwy.net:48338/railway
+
 services:
   web:
-    build: .
+    image: python:3.10-slim  # Use a pre-existing Python image
     command: python manage.py runserver 0.0.0.0:8000
     volumes:
       - .:/app
+    working_dir: /app  # Set the working directory inside the container
     ports:
       - "8000:8000"
     env_file:
@@ -13,14 +29,15 @@ services:
     depends_on:
       - db
     environment:
-      DATABASE_PUBLIC_URL: postgresql://postgres:kpljCtwbeZSnbclsqeLUpBdcfbXeqnjt@junction.proxy.rlwy.net:45589/railway
+      DATABASE_PUBLIC_URL: postgresql://postgres:bnUJJUGzVHqiaWIRZrQlguAzAnbJLSNI@junction.proxy.rlwy.net:48338/railway
+
 
   db:
     image: postgres:15
     environment:
       POSTGRES_DB: railway
       POSTGRES_USER: postgres
-      POSTGRES_PASSWORD: kpljCtwbeZSnbclsqeLUpBdcfbXeqnjt
+      POSTGRES_PASSWORD: bnUJJUGzVHqiaWIRZrQlguAzAnbJLSNI
       # Disable host authentication for local setup only
       POSTGRES_HOST_AUTH_METHOD: trust
     ports:
