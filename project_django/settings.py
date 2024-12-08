@@ -166,14 +166,20 @@ print("PGPORT:", config('PGPORT', default=None))
 #         }
 #     }
 
+# PGDATABASE=railway
+# PGHOST=postgres-tctf.railway.internal
+# PGPASSWORD=bnUJJUGzVHqiaWIRZrQlguAzAnbJLSNI
+# PGPORT=5432
+# PGUSER=postgres
+
 DATABASES = {
         'default': {
             'ENGINE': 'django.db.backends.postgresql',
-            'NAME': config('PGDATABASE'),
-            'USER': config('PGUSER'),
-            'PASSWORD': config('PGPASSWORD'),
-            'HOST': config('PGHOST'),
-            'PORT': config('PGPORT'),
+            'NAME': 'railway',
+            'USER': 'postgres',
+            'PASSWORD': 'bnUJJUGzVHqiaWIRZrQlguAzAnbJLSNI',
+            'HOST': 'postgres-tctf.railway.internal',
+            'PORT': '5432',
             'OPTIONS': {
                 'sslmode': 'require',  # Use SSL if needed (usually the case with Railway)
             }
