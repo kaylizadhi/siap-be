@@ -167,6 +167,14 @@ print("PGPORT:", config('PGPORT', default=None))
 #     }
 
 DATABASE_PUBLIC_URL = config("DATABASE_PUBLIC_URL", default=None)
+DATABASE_URL = config("DATABASE_URL", default=None)
+DATABASES = {
+    'default': dj_database_url.config(
+        default=config('DATABASE_URL'),
+        conn_max_age=600,  # Connection pooling
+        ssl_require=True   # Enforce SSL
+    )
+}
 
 DATABASES = {
         'default': {
