@@ -26,7 +26,7 @@ urlpatterns = [
     path('admin/', admin.site.urls),
     path('api/buatAkun/', include('buatAkun.urls')),
     path('api/daftarAkun/', include('daftarAkun.urls')),
-    path('', include('example_app.urls')),
+    path('', login_view, name="login"),
     path('api/accounts/', include('accounts.urls')),
     path('api/', login_view, name="login"),
     path('api/get-security-question/', get_security_question, name='get_security_question'),
