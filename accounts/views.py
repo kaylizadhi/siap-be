@@ -180,7 +180,7 @@ def get_sidebar_role(request):
             'menu': [
                 'dashboard',
                 'profil', 'list-klien', 
-                'tracker-survei', 'survei', 'daftar-dokumen'
+                'tracker-survei', 'survei', 'daftar-dokumen', 'generator-dokumen'
             ]
         }
     }
