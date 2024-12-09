@@ -288,7 +288,7 @@ def export_existing_invoice_dp(request):
         data = json.loads(request.body)
     
     user_data = {
-        'invoice_code': data.get('invoice_id', ''),
+        'invoice_code': data.get('id', ''),
         'client_name': data.get('client_name', 'Default Client'),
         'survey_name': data.get('survey_name', 'Default Survey'),
         'respondent_count': data.get('respondent_count', '0'),
@@ -371,7 +371,7 @@ def export_existing_invoice_final(request):
         data = json.loads(request.body)
     
     user_data = {
-        'invoice_code': data.get('invoice_id', ''),
+        'invoice_code': data.get('id', ''),
         'client_name': data.get('client_name', 'Default Client'),
         'survey_name': data.get('survey_name', 'Default Survey'),
         'respondent_count': data.get('respondent_count', '0'),
@@ -644,9 +644,9 @@ def export_existing_kwitansi_dp(request):
         data = json.loads(request.body)
     
     user_data = {
-        'kwitansi_code': data.get('kwitansi_id', ''),
-        'pembayar': data.get('pembayar', ''),
-        'tujuan_pembayaran': data.get('tujuan_pembayaran', ''),
+        'kwitansi_code': data.get('id', ''),
+        'pembayar': data.get('client_name', ''),
+        'tujuan_pembayaran': data.get('survey_name', ''),
         'amount': data.get('amount', '0'),
         'nominal_tertulis' : data.get('nominal_tertulis', ''),
         'additional_info': data.get('additional_info', ''),
@@ -708,9 +708,9 @@ def export_existing_kwitansi_final(request):
         data = json.loads(request.body)
     
     user_data = {
-        'kwitansi_code': data.get('kwitansi_id', ''),
-        'pembayar': data.get('pembayar', ''),
-        'tujuan_pembayaran': data.get('tujuan_pembayaran', ''),
+        'kwitansi_code': data.get('id', ''),
+        'pembayar': data.get('client_name', ''),
+        'tujuan_pembayaran': data.get('survey_name', ''),
         'amount': data.get('amount', '0'),
         'nominal_tertulis' : data.get('nominal_tertulis', ''),
         'additional_info': data.get('additional_info', ''),
