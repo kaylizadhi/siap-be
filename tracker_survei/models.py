@@ -1,4 +1,3 @@
-
 from django.db import models
 from django.core.exceptions import ValidationError
 from django.db.models.signals import post_save
@@ -38,18 +37,20 @@ class TrackerSurvei(models.Model):
     # Administrasi Akhir
     buat_invoice_final = models.CharField(max_length=20, choices=STATUS_CHOICES, default='NOT_STARTED')
     pembuatan_laporan = models.CharField(max_length=20, choices=STATUS_CHOICES, default='NOT_STARTED')
-    pembuatan_laporan = models.CharField(max_length=20, choices=STATUS_CHOICES, default='NOT_STARTED')
     pembayaran_lunas = models.CharField(max_length=20, choices=STATUS_CHOICES, default='NOT_STARTED')
     pembuatan_kwitansi_final = models.CharField(max_length=20, choices=STATUS_CHOICES, default='NOT_STARTED')
-    penyerahan_laporan = models.CharField(max_length=20, choices=STATUS_CHOICES, default='NOT_STARTED')
     penyerahan_laporan = models.CharField(max_length=20, choices=STATUS_CHOICES, default='NOT_STARTED')
 
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
-
     last_status = models.CharField(max_length=100, null=True, blank=True)
 
     def update_last_status(self):
+        # Check if penyerahan_laporan is finished first
+        if self.penyerahan_laporan == 'FINISHED':
+            self.last_status = 'Done'
+            return
+
         stages = [
             # Administrasi Awal
             [
@@ -71,9 +72,9 @@ class TrackerSurvei(models.Model):
                 ('pantau_data_cleaning', 'Pantau Data Cleaning')
             ],
             # Administrasi Akhir
-            [
-                ('buat_invoice_final', 'Buat Invoice Final'),
+          [
                 ('pembuatan_laporan', 'Pembuatan Laporan'),
+                ('buat_invoice_final', 'Buat Invoice Final'),
                 ('pembayaran_lunas', 'Pembayaran Lunas'),
                 ('pembuatan_kwitansi_final', 'Pembuatan Kwitansi Final'),
                 ('penyerahan_laporan', 'Penyerahan Laporan')
@@ -140,10 +141,7 @@ class TrackerSurvei(models.Model):
         admin_akhir_fields = [
             self.buat_invoice_final,
             self.pembuatan_laporan,
-            self.pembuatan_laporan,
             self.pembayaran_lunas,
-            self.pembuatan_kwitansi_final,
-            self.penyerahan_laporan,
             self.pembuatan_kwitansi_final,
             self.penyerahan_laporan
         ]
@@ -181,26 +179,30 @@ class TrackerSurvei(models.Model):
             raise ValidationError('Memantau responden harus selesai sebelum memantau data cleaning')
 
         # Validate Administrasi Akhir sequence (after Pengendali Mutu)
-        admin_akhir_fields = {'buat_invoice_final', 'pembayaran_lunas', 'pembuatan_kwitansi_final'}
+        admin_akhir_fields = {
+            'pembuatan_laporan',
+            'buat_invoice_final',
+            'pembayaran_lunas',
+            'pembuatan_kwitansi_final',
+            'penyerahan_laporan'
+        }
         if any(getattr(self, field) != 'NOT_STARTED' for field in admin_akhir_fields) and not self.is_pengendali_mutu_finished():
             raise ValidationError('Semua tugas Pengendali Mutu harus selesai sebelum memulai Administrasi Akhir')
 
         # Validate Administrasi Akhir internal sequence
         if self.buat_invoice_final != 'NOT_STARTED' and self.pembuatan_laporan != 'FINISHED':
             raise ValidationError('Pembuatan Laporan harus selesai sebelum Buat Invoice Final dapat dimulai')
-        if self.buat_invoice_final != 'NOT_STARTED' and self.pembuatan_laporan != 'FINISHED':
-            raise ValidationError('Pembuatan Laporan harus selesai sebelum Buat Invoice Final dapat dimulai')
+            
         if self.pembayaran_lunas != 'NOT_STARTED' and self.buat_invoice_final != 'FINISHED':
             raise ValidationError('Buat Invoice Final harus selesai sebelum Pembayaran Lunas dapat dilakukan')
+            
         if self.pembuatan_kwitansi_final != 'NOT_STARTED' and self.pembayaran_lunas != 'FINISHED':
             raise ValidationError('Pembayaran Lunas harus selesai sebelum Pembuatan Kwitansi Final dapat dibuat')
-        if self.penyerahan_laporan != 'NOT_STARTED' and self.pembuatan_kwitansi_final != 'FINISHED':
-            raise ValidationError('Pembuatan Kwitansi Final harus selesai sebelum Penyerahan Laporan dapat dilakukan')
+            
         if self.penyerahan_laporan != 'NOT_STARTED' and self.pembuatan_kwitansi_final != 'FINISHED':
             raise ValidationError('Pembuatan Kwitansi Final harus selesai sebelum Penyerahan Laporan dapat dilakukan')
 
     def save(self, *args, **kwargs):
-        self.update_last_status()
         self.update_last_status()
         self.full_clean()
         super().save(*args, **kwargs)

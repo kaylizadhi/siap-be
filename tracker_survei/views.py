@@ -6,12 +6,7 @@ from django.shortcuts import get_object_or_404
 from django.core.exceptions import ValidationError
 from .models import TrackerSurvei
 from .serializers import TrackerSurveiSerializer, TrackerGet
-from .serializers import TrackerSurveiSerializer, TrackerGet
 import logging
-from survei.models import Survei
-from survei.serializers import SurveiGet, SurveiPost
-from django.core.paginator import Paginator
-from django.db.models import Q
 from survei.models import Survei
 from survei.serializers import SurveiGet, SurveiPost
 from django.core.paginator import Paginator
@@ -55,6 +50,7 @@ def validate_role_fields(user_role, data):
 
     allowed_fields = role_field_mapping.get(user_role, set())
     unauthorized_fields = set(data.keys()) - allowed_fields
+    
     if unauthorized_fields:
         raise ValidationError(
             f"User with role '{user_role}' cannot modify these fields: {', '.join(unauthorized_fields)}"
@@ -63,35 +59,36 @@ def validate_role_fields(user_role, data):
 def safe_update_tracker(tracker, user_role, update_data):
     """Safely update tracker with validation and error handling."""
     try:
+        # First validate role permissions
         validate_role_fields(user_role, update_data)
         
-        # Save the current state of the tracker fields to allow rollback in case of error
+        # Save current state for potential rollback
         current_state = {
             field: getattr(tracker, field) 
             for field in update_data.keys()
         }
         
-        # Attempt to update tracker with new data
+        # Update fields
         for field, value in update_data.items():
             setattr(tracker, field, value)
         
-        # Perform model-level validation
+        # Validate and save
         tracker.full_clean()
         tracker.save()
         
-        return None  # Indicate no error
+        return None  # No error
         
     except ValidationError as e:
-        # Rollback to original state if validation fails
+        # Rollback changes
         for field, value in current_state.items():
             setattr(tracker, field, value)
-        
+            
         if hasattr(e, 'message_dict'):
-            return e.message_dict  # Return validation error details
+            return e.message_dict
         return {'error': str(e)}
         
     except Exception as e:
-        # Rollback to original state in case of any unexpected error
+        # Rollback changes
         for field, value in current_state.items():
             setattr(tracker, field, value)
             
@@ -101,6 +98,7 @@ def safe_update_tracker(tracker, user_role, update_data):
 def handle_tracker_update(request, survei_id, allowed_roles):
     """Helper function to handle tracker updates"""
     try:
+        # Check role permissions
         role_permission = RolePermission(allowed_roles)
         if not role_permission.has_permission(request, None):
             return Response(
@@ -108,12 +106,16 @@ def handle_tracker_update(request, survei_id, allowed_roles):
                 status=status.HTTP_403_FORBIDDEN
             )
 
+        # Get tracker instance
         tracker = get_object_or_404(TrackerSurvei, survei_id=survei_id)
+        
+        # Update tracker
         error = safe_update_tracker(tracker, request.user.role, request.data)
         
         if error:
             return Response(error, status=status.HTTP_400_BAD_REQUEST)
             
+        # Return updated data
         serializer = TrackerSurveiSerializer(tracker)
         return Response(serializer.data)
         
@@ -125,9 +127,9 @@ def handle_tracker_update(request, survei_id, allowed_roles):
         )
 
 @api_view(['GET'])
-# @permission_classes([IsAuthenticated])
-# @permission_classes([IsAuthenticated])
+@permission_classes([IsAuthenticated])
 def get_tracker_detail(request, survei_id):
+    """Get details of a specific tracker"""
     try:
         survei = get_object_or_404(Survei, id=survei_id)
         tracker, created = TrackerSurvei.objects.get_or_create(survei=survei)
@@ -143,72 +145,91 @@ def get_tracker_detail(request, survei_id):
 @api_view(['PATCH'])
 @permission_classes([IsAuthenticated])
 def update_administrasi_status(request, survei_id):
-    """Update tracker status for Administrasi role."""
+    """Update tracker status for Administrasi role"""
     return handle_tracker_update(request, survei_id, ['Administrasi'])
 
 @api_view(['PATCH'])
 @permission_classes([IsAuthenticated])
 def update_administrasi_akhir_status(request, survei_id):
-    """Update tracker status for Administrasi Akhir role."""
+    """Update tracker status for Administrasi Akhir tasks"""
     return handle_tracker_update(request, survei_id, ['Administrasi'])
 
 @api_view(['PATCH'])
 @permission_classes([IsAuthenticated])
 def update_logistik_status(request, survei_id):
-    """Update tracker status for Logistik role."""
+    """Update tracker status for Logistik role"""
     return handle_tracker_update(request, survei_id, ['Logistik'])
 
 @api_view(['PATCH'])
 @permission_classes([IsAuthenticated])
 def update_pengendali_mutu_status(request, survei_id):
-    """Update tracker status for Pengendali Mutu role."""
+    """Update tracker status for Pengendali Mutu role"""
     return handle_tracker_update(request, survei_id, ['Pengendali Mutu'])
 
 @api_view(['GET'])
+@permission_classes([IsAuthenticated])
 def get_list_survei(request):
-    # Get pagination parameters
-    page_number = request.GET.get('page', 1)
-    page_size = request.GET.get('page_size', 10)
-    search_query = request.GET.get('search', '')
-
-    # Base queryset
-    survei = Survei.objects.all()
-    
-    # Apply search if query exists
-    if search_query:
-        survei = survei.filter(
-            Q(nama_survei__icontains=search_query) |
-            Q(klien__nama_perusahaan__icontains=search_query) 
-        )
-    
-    # Order by nama_survei
-    survei = survei.order_by('nama_survei')
-    
-    # Create paginator
-    paginator = Paginator(survei, page_size)
-
+    """Get paginated list of surveys with search functionality"""
     try:
-        page_obj = paginator.page(page_number)
-    except:
-        page_obj = paginator.page(1)
+        # Get pagination parameters
+        page_number = request.GET.get('page', 1)
+        page_size = request.GET.get('page_size', 10)
+        search_query = request.GET.get('search', '')
 
-    # Serialize the paginated data
-    serializer = SurveiPost(page_obj.object_list, many=True)
-    
-    # Prepare response data
-    response_data = {
-        'results': serializer.data,
-        'total_pages': paginator.num_pages,
-        'current_page': page_obj.number,
-        'count': paginator.count,
-        'has_next': page_obj.has_next(),
-        'has_previous': page_obj.has_previous(),
-    }
-    
-    return Response(response_data)
+        # Base queryset
+        surveys = Survei.objects.all()
+        
+        # Apply search if query exists
+        if search_query:
+            surveys = surveys.filter(
+                Q(nama_survei__icontains=search_query) |
+                Q(klien__nama_perusahaan__icontains=search_query) 
+            )
+        
+        # Order by nama_survei
+        surveys = surveys.order_by('nama_survei')
+        
+        # Create paginator
+        paginator = Paginator(surveys, page_size)
+
+        try:
+            page_obj = paginator.page(page_number)
+        except:
+            page_obj = paginator.page(1)
+
+        # Serialize the paginated data
+        serializer = SurveiPost(page_obj.object_list, many=True)
+        
+        # Prepare response data
+        response_data = {
+            'results': serializer.data,
+            'total_pages': paginator.num_pages,
+            'current_page': page_obj.number,
+            'count': paginator.count,
+            'has_next': page_obj.has_next(),
+            'has_previous': page_obj.has_previous(),
+        }
+        
+        return Response(response_data)
+        
+    except Exception as e:
+        logger.error(f"Error fetching survey list: {str(e)}")
+        return Response(
+            {'error': 'Failed to fetch survey list'}, 
+            status=status.HTTP_500_INTERNAL_SERVER_ERROR
+        )
 
 @api_view(['GET'])
+@permission_classes([IsAuthenticated])
 def get_list_dashboard(request):
-    survei = TrackerSurvei.objects.all()
-    serializer = TrackerGet(survei, many=True)
-    return Response(serializer.data, status=status.HTTP_200_OK)
+    """Get list of all trackers for dashboard"""
+    try:
+        trackers = TrackerSurvei.objects.all()
+        serializer = TrackerGet(trackers, many=True)
+        return Response(serializer.data, status=status.HTTP_200_OK)
+    except Exception as e:
+        logger.error(f"Error fetching dashboard data: {str(e)}")
+        return Response(
+            {'error': 'Failed to fetch dashboard data'}, 
+            status=status.HTTP_500_INTERNAL_SERVER_ERROR
+        )
